@@ -49,11 +49,6 @@ export default function Header({
           {/* Active Presence Status */}
           <div className="flex items-center gap-3 rounded-full border border-[var(--card-border)] bg-[var(--input-bg)]/40 px-3 py-1.5">
             {/* Live Indicator */}
-            <div className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-            </div>
-            <div className="hidden h-3.5 w-px bg-[var(--card-border)] sm:block"></div>
 
             <div className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5 text-[var(--text-secondary)]" />

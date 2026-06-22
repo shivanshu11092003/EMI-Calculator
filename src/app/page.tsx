@@ -285,7 +285,7 @@ export default function Home() {
           {state.mode === 'compare' && (
             <div className="animate-fade-in">
               <LoanComparison
-                scenarios={deferredScenarios}
+                scenarios={state.scenarios}
                 onScenarioChange={handleScenarioChange}
                 onActivateScenario={handleActivateScenario}
               />

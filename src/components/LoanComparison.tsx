@@ -94,9 +94,11 @@ export default function LoanComparison({
                       max={5000000}
                       step={10000}
                       value={res.loanAmount}
-                      onChange={(val) =>
-                        onScenarioChange(res.id, {loanAmount: val})
-                      }
+                      onChange={(val) => {
+                        if (val !== res.loanAmount) {
+                          onScenarioChange(res.id, {loanAmount: val});
+                        }
+                      }}
                       tooltip={{formatter: (val) => formatCurrency(val || 0)}}
                     />
                   </div>
@@ -114,9 +116,11 @@ export default function LoanComparison({
                       max={36}
                       step={0.1}
                       value={res.interestRate}
-                      onChange={(val) =>
-                        onScenarioChange(res.id, {interestRate: val})
-                      }
+                      onChange={(val) => {
+                        if (val !== res.interestRate) {
+                          onScenarioChange(res.id, {interestRate: val});
+                        }
+                      }}
                       tooltip={{formatter: (val) => `${val}% p.a.`}}
                     />
                   </div>
@@ -134,9 +138,11 @@ export default function LoanComparison({
                       max={84}
                       step={1}
                       value={res.tenure}
-                      onChange={(val) =>
-                        onScenarioChange(res.id, {tenure: val})
-                      }
+                      onChange={(val) => {
+                        if (val !== res.tenure) {
+                          onScenarioChange(res.id, {tenure: val});
+                        }
+                      }}
                       tooltip={{formatter: (val) => `${val} mo`}}
                     />
                   </div>
