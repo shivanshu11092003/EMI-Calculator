@@ -1,0 +1,234 @@
+"use client";
+
+import React, { useState } from "react";
+import { Table, Segmented, Button } from "antd";
+import { TableOutlined, BarChartOutlined, DownloadOutlined } from "@ant-design/icons";
+import { AmortizationRow } from "../utils/formulas";
+import { exportAmortizationToCSV } from "../utils/csvExport";
+import dayjs from "dayjs";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import type { TableProps } from "antd";
+
+interface AmortizationScheduleProps {
+  schedule: AmortizationRow[];
+  breakEvenMonth: number;
+  startDate?: string;
+}
+
+export default function AmortizationSchedule({
+  schedule,
+  breakEvenMonth,
+  startDate,
+}: AmortizationScheduleProps) {
+  const [viewMode, setViewMode] = useState<"table" | "chart">("table");
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
+  const getCalendarMonth = (monthNumber: number) => {
+    if (!startDate) return `Month ${monthNumber}`;
+    return dayjs(startDate).add(monthNumber - 1, "month").format("MMM YYYY");
+  };
+
+  const handleDownload = () => {
+    exportAmortizationToCSV(schedule);
+  };
+
+  const chartData = schedule.map((row) => ({
+    month: row.month,
+    monthName: getCalendarMonth(row.month),
+    principal: Math.round(row.totalPrincipalPaid),
+    interest: Math.round(row.interestPaid),
+    prepayment: Math.round(row.prepayment),
+  }));
+
+  // Define Ant Design Table columns configuration
+  const columns: TableProps<AmortizationRow>["columns"] = [
+    {
+      title: "Month",
+      dataIndex: "month",
+      key: "month",
+      render: (_, record) => {
+        const isBreakEven = record.month === breakEvenMonth;
+        return (
+          <span className="font-mono text-[var(--text-primary)] font-bold text-xs">
+            {getCalendarMonth(record.month)}
+            {isBreakEven && (
+              <span className="ml-2 inline-block px-1.5 py-0.5 rounded bg-emerald-500 text-white text-[8px] font-bold uppercase tracking-wide">
+                Break-even
+              </span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Installment",
+      dataIndex: "emi",
+      key: "emi",
+      render: (val) => (val > 0 ? formatCurrency(val) : "—"),
+    },
+    {
+      title: "Principal",
+      dataIndex: "principalPaid",
+      key: "principalPaid",
+      render: (val) => formatCurrency(val),
+    },
+    {
+      title: "Interest",
+      dataIndex: "interestPaid",
+      key: "interestPaid",
+      render: (val) => (
+        <span className="text-[var(--interest-color)] font-mono">{formatCurrency(val)}</span>
+      ),
+    },
+    {
+      title: "Prepayment",
+      dataIndex: "prepayment",
+      key: "prepayment",
+      render: (val) => (
+        val > 0 ? (
+          <span className="text-[var(--principal-color)] font-mono">{formatCurrency(val)}</span>
+        ) : (
+          "—"
+        )
+      ),
+    },
+    {
+      title: "Remaining Balance",
+      dataIndex: "balanceRemaining",
+      key: "balanceRemaining",
+      render: (val) => formatCurrency(val),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-5 p-5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm">
+      {/* Header and Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--card-border)] pb-4">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+          Amortization Schedule
+        </h2>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+          <Segmented
+            options={[
+              { label: "Table", value: "table", icon: <TableOutlined /> },
+              { label: "Chart", value: "chart", icon: <BarChartOutlined /> },
+            ]}
+            value={viewMode}
+            onChange={(val) => setViewMode(val as "table" | "chart")}
+            size="middle"
+          />
+
+          <Button
+            type="default"
+            icon={<DownloadOutlined />}
+            onClick={handleDownload}
+            size="middle"
+          >
+            Export CSV
+          </Button>
+        </div>
+      </div>
+
+      {/* Amortization Views */}
+      {viewMode === "table" ? (
+        <div className="overflow-x-auto rounded-lg">
+          <Table<AmortizationRow>
+            dataSource={schedule}
+            columns={columns}
+            rowKey="month"
+            pagination={{
+              pageSize: 12,
+              showSizeChanger: false,
+              size: "small",
+            }}
+            rowClassName={(record) =>
+              record.month === breakEvenMonth
+                ? "bg-emerald-500/5 dark:bg-emerald-500/10 font-bold"
+                : ""
+            }
+            size="small"
+            bordered
+          />
+        </div>
+      ) : (
+        /* Chart View */
+        <div className="w-full h-80 sm:h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
+              <XAxis
+                dataKey="monthName"
+                stroke="var(--text-muted)"
+                fontSize={9}
+                tickLine={false}
+              />
+              <YAxis
+                stroke="var(--text-muted)"
+                fontSize={9}
+                tickLine={false}
+                tickFormatter={(val) => `₹${val / 1000}k`}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card-bg)",
+                  borderColor: "var(--card-border)",
+                  borderRadius: "8px",
+                  fontSize: "10px",
+                  color: "var(--text-primary)",
+                  fontWeight: "bold",
+                }}
+                formatter={(value: any) => [formatCurrency(value), ""]}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: "10px", fontWeight: "bold" }}
+                verticalAlign="bottom"
+                height={32}
+              />
+              <Bar
+                dataKey="principal"
+                name="Principal"
+                stackId="a"
+                fill="var(--principal-color)"
+              />
+              <Bar
+                dataKey="interest"
+                name="Interest"
+                stackId="a"
+                fill="var(--interest-color)"
+              />
+              {schedule.some((row) => row.prepayment > 0) && (
+                <Bar
+                  dataKey="prepayment"
+                  name="Prepayment"
+                  stackId="a"
+                  fill="var(--secondary)"
+                />
+              )}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,158 @@
+"use client";
+
+import { DatePicker, InputNumber, Slider } from "antd";
+import dayjs from "dayjs";
+
+interface InputPanelProps {
+  loanAmount: number;
+  interestRate: number;
+  tenure: number;
+  startDate?: string;
+  onChange: (updates: { loanAmount?: number; interestRate?: number; tenure?: number; startDate?: string }) => void;
+}
+
+export default function InputPanel({
+  loanAmount,
+  interestRate,
+  tenure,
+  startDate,
+  onChange,
+}: InputPanelProps) {
+  return (
+    <div className="flex flex-col gap-5 p-5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm">
+      <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] border-b border-[var(--card-border)] pb-2.5">
+        Loan Details
+      </h2>
+
+      {/* Loan Amount */}
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center text-xs font-bold text-[var(--text-secondary)]">
+          <span>Principal (P)</span>
+          <InputNumber<number>
+            min={10000}
+            max={5000000}
+            step={5000}
+            value={loanAmount}
+            onChange={(val) => {
+              if (val !== null) onChange({ loanAmount: val });
+            }}
+            formatter={(value) => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            parser={(value) => (value ? parseFloat(value.replace(/₹\s?|(,*)/g, "")) : 10000)}
+            style={{ width: 130 }}
+            size="small"
+          />
+        </div>
+        <Slider
+          min={10000}
+          max={5000000}
+          step={5000}
+          value={loanAmount}
+          onChange={(val) => onChange({ loanAmount: val })}
+          tooltip={{
+            formatter: (val) =>
+              new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: "INR",
+                maximumFractionDigits: 0,
+              }).format(val || 0),
+          }}
+        />
+        <div className="flex justify-between text-xs text-[var(--text-muted)] font-bold">
+          <span>₹10k</span>
+          <span>₹50L</span>
+        </div>
+      </div>
+
+      {/* Interest Rate */}
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center text-xs font-bold text-[var(--text-secondary)]">
+          <span>Interest Rate (%)</span>
+          <InputNumber<number>
+            min={1}
+            max={36}
+            step={0.1}
+            value={interestRate}
+            onChange={(val) => {
+              if (val !== null) onChange({ interestRate: val });
+            }}
+            formatter={(value) => `${value}%`}
+            parser={(value) => (value ? parseFloat(value.replace("%", "")) : 1)}
+            style={{ width: 80 }}
+            size="small"
+          />
+        </div>
+        <Slider
+          min={1}
+          max={36}
+          step={0.05}
+          value={interestRate}
+          onChange={(val) => onChange({ interestRate: val })}
+          tooltip={{ formatter: (val) => `${val}% p.a.` }}
+        />
+        <div className="flex justify-between text-xs text-[var(--text-muted)] font-bold">
+          <span>1%</span>
+          <span>36%</span>
+        </div>
+      </div>
+
+      {/* Tenure */}
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center text-xs font-bold text-[var(--text-secondary)]">
+          <span>Tenure (Months)</span>
+          <InputNumber<number>
+            min={1}
+            max={84}
+            step={1}
+            value={tenure}
+            onChange={(val) => {
+              if (val !== null) onChange({ tenure: val });
+            }}
+            formatter={(value) => `${value} mo`}
+            parser={(value) => (value ? parseInt(value.replace(" mo", ""), 10) : 1)}
+            style={{ width: 80 }}
+            size="small"
+          />
+        </div>
+        <Slider
+          min={1}
+          max={84}
+          step={1}
+          value={tenure}
+          onChange={(val) => onChange({ tenure: val })}
+          tooltip={{
+            formatter: (val) => {
+              if (!val) return "0 mo";
+              const yrs = Math.floor(val / 12);
+              const mos = val % 12;
+              return `${yrs > 0 ? `${yrs}y ` : ""}${mos > 0 ? `${mos}m` : ""}`;
+            },
+          }}
+        />
+        <div className="flex justify-between text-xs text-[var(--text-muted)] font-bold">
+          <span>1 month</span>
+          <span>84 months (7y)</span>
+        </div>
+      </div>
+
+      {/* Start Month */}
+      <div className="flex flex-col gap-2 pt-2 border-t border-[var(--card-border)]">
+        <div className="flex justify-between items-center text-xs font-bold text-[var(--text-secondary)]">
+          <span>Start Month</span>
+          <DatePicker
+            picker="month"
+            value={startDate ? dayjs(startDate) : dayjs()}
+            onChange={(date) => {
+              if (date) {
+                onChange({ startDate: date.format("YYYY-MM") });
+              }
+            }}
+            format="MMM YYYY"
+            allowClear={false}
+            size="small"
+            style={{ width: 130 }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

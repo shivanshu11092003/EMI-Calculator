@@ -1,26 +1,149 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* Premium White */
+  --foreground: #0f172a;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --primary: #00d09c; /* Groww teal */
+  --primary-hover: #00b084;
+  --primary-glow: rgba(0, 208, 156, 0.25);
+  --secondary: #6366f1; /* Indigo */
+  --interest-color: #f43f5e; /* Rose for interest */
+  --principal-color: #00d09c; /* Teal/green for principal */
+  --input-bg: #f1f5f9;
+  --input-border: #cbd5e1;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #000000; /* Pure Black */
+  --foreground: #f8fafc;
+  --card-bg: #0d0d0d; /* Very dark charcoal/black */
+  --card-border: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --primary: #00d09c;
+  --primary-hover: #05b88a;
+  --primary-glow: rgba(0, 208, 156, 0.35);
+  --secondary: #818cf8; /* Light Indigo */
+  --interest-color: #fb7185; /* Rose/pink for interest */
+  --principal-color: #00d09c;
+  --input-bg: #121212;
+  --input-border: #374151;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
+}
+
+/* ==========================================
+   Premium Ant Design Slider Custom Styling
+   ========================================== */
+.ant-slider {
+  margin: 14px 0 10px 0 !important;
+  padding: 4px 0 !important;
+}
+
+/* Slider Track Rail (Background Track) */
+.ant-slider-rail {
+  background-color: var(--input-bg) !important;
+  height: 5px !important;
+  border-radius: 9999px !important;
+  border: 1px solid var(--card-border) !important;
+  box-sizing: border-box !important;
+  
+  /* Centering */
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Slider Active Track */
+.ant-slider-track {
+  background-color: var(--primary) !important;
+  height: 5px !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 0 8px var(--primary-glow);
+  box-sizing: border-box !important;
+  
+  /* Centering */
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  
+  transition: background-color 0.15s ease;
+}
+
+/* Slider Handle (Thumb Mover) */
+.ant-slider-handle {
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  background-color: #ffffff !important;
+  border: 3px solid var(--primary) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+  
+  /* Strict Centering Over Track */
+  top: 50% !important;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+  
+  transition: width 0.12s ease, 
+              height 0.12s ease, 
+              border-color 0.12s ease, 
+              box-shadow 0.12s ease !important;
+}
+
+/* Handle Hover / Active / Dragging State */
+.ant-slider-handle:hover,
+.ant-slider-handle:focus,
+.ant-slider-handle-active,
+.ant-slider:hover .ant-slider-handle {
+  width: 22px !important;
+  height: 22px !important;
+  border-color: var(--primary-hover) !important;
+  box-shadow: 0 0 10px var(--primary-glow), 0 2px 6px rgba(0, 208, 156, 0.35) !important;
+  
+  /* Ensure centering is locked during hover resizing */
+  top: 50% !important;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.ant-slider-handle::after {
+  display: none !important; /* Hide native Antd ring */
+}
+
+/* Slider Hover Track Color */
+.ant-slider:hover .ant-slider-track {
+  background-color: var(--primary-hover) !important;
+}
+
+/* ==========================================
+   Custom Scrollbar
+   ========================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
