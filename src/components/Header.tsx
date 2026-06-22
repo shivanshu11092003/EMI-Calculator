@@ -1,6 +1,7 @@
 'use client';
 
-import {Moon, Redo2, Sun, Undo2} from 'lucide-react';
+import {Badge, Button, Tooltip} from 'antd';
+import {Calculator, Moon, Redo2, Sun, Undo2, Users} from 'lucide-react';
 
 interface HeaderProps {
   tabId: string;
@@ -24,78 +25,107 @@ export default function Header({
   canRedo,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 w-full border-[var(--card-border)] border-b bg-[var(--card-bg)] px-4 py-3 transition-all sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
-        {/* Workspace Brand */}
-        <div className="flex items-center gap-2.5">
-          {/* <div className="h-8 w-8 rounded-lg bg-[var(--primary)] flex items-center justify-center font-bold text-white text-sm">
-            E
-          </div> */}
+    <header className="sticky top-0 z-50 w-full border-[var(--card-border)] border-b bg-[var(--card-bg)]/85 backdrop-blur-md transition-all duration-300">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Workspace Brand / Logo */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary)] text-white shadow-[0_3px_8px_rgba(37,99,235,0.15)]">
+            <Calculator className="h-5 w-5" />
+          </div>
           <div>
-            <h1 className="font-bold text-[var(--text-primary)] text-sm tracking-tight">
-              EMI Calculator
-            </h1>
+            <div className="flex items-center gap-1.5">
+              <h1 className="font-black text-[var(--primary)] text-sm tracking-tight">
+                EMI Calculator
+              </h1>
+            </div>
             <p className="font-medium text-[10px] text-[var(--text-muted)]">
-              with Shared Workspace
+              Collaborative Shared Workspace
             </p>
           </div>
         </div>
 
-        {/* Toolbar & Status */}
+        {/* Toolbar & Live Collaboration Status */}
         <div className="flex items-center gap-4">
-          {/* Connection status and live count */}
-          <div className="flex items-center gap-2 font-semibold text-[var(--text-secondary)] text-xs">
-            {/* <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-            </span> */}
-            <span className="hidden font-mono text-[var(--text-muted)] sm:inline">
-              {tabId}
-            </span>
-            <span className="text-[var(--text-muted)]">•</span>
-            <span>
-              {activeTabsCount}{' '}
-              {activeTabsCount === 1 ? 'tab active' : 'tabs active'}
-            </span>
+          {/* Active Presence Status */}
+          <div className="flex items-center gap-3 rounded-full border border-[var(--card-border)] bg-[var(--input-bg)]/40 px-3 py-1.5">
+            {/* Live Indicator */}
+            <div className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+            </div>
+            <div className="hidden h-3.5 w-px bg-[var(--card-border)] sm:block"></div>
+
+            <div className="flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5 text-[var(--text-secondary)]" />
+              <Badge
+                count={activeTabsCount}
+                style={{
+                  backgroundColor: 'var(--primary)',
+                  fontSize: '9px',
+                  height: '16px',
+                  minWidth: '16px',
+                  lineHeight: '16px',
+                  borderRadius: '8px',
+                }}
+              >
+                <span className="pr-2 font-semibold text-[var(--text-primary)] text-xs">
+                  {activeTabsCount === 1 ? 'Tab' : 'Tabs'}
+                </span>
+              </Badge>
+            </div>
           </div>
 
-          <div className="h-4 w-px bg-[var(--card-border)]"></div>
+          <div className="h-5 w-px bg-[var(--card-border)]"></div>
 
-          {/* Undo/Redo */}
-          <div className="flex items-center overflow-hidden rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)]">
-            <button
-              type="button"
-              onClick={onUndo}
-              disabled={!canUndo}
-              title="Undo (Ctrl+Z)"
-              className="border-[var(--card-border)] border-r p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--input-bg)] disabled:opacity-25"
+          {/* Undo/Redo & Theme Controls */}
+          <div className="flex items-center gap-1.5">
+            <Tooltip title="Undo (Ctrl+Z)" mouseEnterDelay={0.5}>
+              <Button
+                type="text"
+                shape="circle"
+                disabled={!canUndo}
+                onClick={onUndo}
+                className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:hover:bg-transparent"
+                icon={<Undo2 className="h-4 w-4" />}
+              />
+            </Tooltip>
+
+            <Tooltip title="Redo (Ctrl+Y)" mouseEnterDelay={0.5}>
+              <Button
+                type="text"
+                shape="circle"
+                disabled={!canRedo}
+                onClick={onRedo}
+                className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:hover:bg-transparent"
+                icon={<Redo2 className="h-4 w-4" />}
+              />
+            </Tooltip>
+
+            <div className="mx-1 h-4 w-px bg-[var(--card-border)]"></div>
+
+            <Tooltip
+              title={
+                theme === 'dark'
+                  ? 'Switch to Light Mode'
+                  : 'Switch to Dark Mode'
+              }
+              mouseEnterDelay={0.5}
             >
-              <Undo2 className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={onRedo}
-              disabled={!canRedo}
-              title="Redo (Ctrl+Y)"
-              className="p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--input-bg)] disabled:opacity-25"
-            >
-              <Redo2 className="h-3.5 w-3.5" />
-            </button>
+              <Button
+                type="text"
+                shape="circle"
+                onClick={onThemeToggle}
+                className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)]"
+                icon={
+                  theme === 'dark' ? (
+                    <Sun className="h-4 w-4 text-amber-500" />
+                  ) : (
+                    <Moon className="h-4 w-4 text-indigo-500" />
+                  )
+                }
+              />
+            </Tooltip>
           </div>
-
-          {/* Theme switcher */}
-          <button
-            type="button"
-            onClick={onThemeToggle}
-            className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-2 text-[var(--text-secondary)] transition-all hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)]"
-            aria-label="Toggle Theme"
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-3.5 w-3.5 text-amber-400" />
-            ) : (
-              <Moon className="h-3.5 w-3.5 text-indigo-500" />
-            )}
-          </button>
         </div>
       </div>
     </header>

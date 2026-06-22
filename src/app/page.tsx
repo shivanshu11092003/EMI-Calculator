@@ -213,6 +213,14 @@ export default function Home() {
           borderRadius: 12,
           fontFamily: "'Inter', system-ui, sans-serif",
         },
+        components: {
+          Tabs: {
+            itemColor: 'var(--text-secondary)',
+            itemSelectedColor: 'var(--primary)',
+            itemHoverColor: 'var(--primary)',
+            itemActiveColor: 'var(--primary)',
+          },
+        },
       }}
     >
       <div className="flex min-h-screen flex-col bg-[var(--background)] font-sans">

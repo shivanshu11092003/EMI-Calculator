@@ -73,8 +73,11 @@ export function useSharedState() {
     future: [],
   });
 
+  const [createdAt] = useState(() => Date.now());
+  const createdAtRef = useRef(createdAt);
+
   const [presenceMap, setPresenceMap] = useState<
-    Record<string, {lastSeen: number}>
+    Record<string, {lastSeen: number; createdAt: number}>
   >({});
 
   const bcRef = useRef<BroadcastChannel | null>(null);
@@ -93,11 +96,23 @@ export function useSharedState() {
     tabIdRef.current = tabId;
   }, [tabId]);
 
-  // Determine leader tab
-  const activeTabs = [tabId, ...Object.keys(presenceMap)].sort();
-  const isLeader = activeTabs[0] === tabId;
-  const activeTabsCount = activeTabs.length;
-  const tabNumber = activeTabs.indexOf(tabId) + 1;
+  // Determine leader tab sorted by creation time
+  const allTabs = [
+    {id: tabId, createdAt},
+    ...Object.entries(presenceMap).map(([id, info]) => ({
+      id,
+      createdAt: info.createdAt,
+    })),
+  ].sort((a, b) => {
+    if (a.createdAt !== b.createdAt) {
+      return a.createdAt - b.createdAt;
+    }
+    return a.id.localeCompare(b.id);
+  });
+
+  const isLeader = allTabs[0]?.id === tabId;
+  const activeTabsCount = allTabs.length;
+  const tabNumber = allTabs.findIndex((t) => t.id === tabId) + 1;
 
   useEffect(() => {
     isLeaderRef.current = isLeader;
@@ -180,6 +195,7 @@ export function useSharedState() {
           past: container.past,
           future: container.future,
           sender: tabId,
+          createdAt: createdAtRef.current,
         });
         isLocalUpdateRef.current = false;
         isUndoRedoRef.current = false;
@@ -269,20 +285,41 @@ export function useSharedState() {
     bcRef.current = bc;
 
     // Join channel
-    bc.postMessage({type: 'join', sender: tabIdRef.current});
+    bc.postMessage({
+      type: 'join',
+      sender: tabIdRef.current,
+      createdAt: createdAtRef.current,
+    });
 
     bc.onmessage = (event) => {
-      const {type, state, past, future, sender, tabId: msgTabId} = event.data;
+      const {
+        type,
+        state,
+        past,
+        future,
+        sender,
+        tabId: msgTabId,
+        createdAt: msgCreatedAt,
+      } = event.data;
       const activeSender = sender || msgTabId;
 
       if (activeSender === tabIdRef.current) return;
 
+      const fallbackCreatedAt = msgCreatedAt || Date.now();
+
       switch (type) {
         case 'join':
-          bc.postMessage({type: 'pong', tabId: tabIdRef.current});
+          bc.postMessage({
+            type: 'pong',
+            tabId: tabIdRef.current,
+            createdAt: createdAtRef.current,
+          });
           setPresenceMap((prev) => ({
             ...prev,
-            [activeSender]: {lastSeen: Date.now()},
+            [activeSender]: {
+              lastSeen: Date.now(),
+              createdAt: fallbackCreatedAt,
+            },
           }));
           break;
 
@@ -290,7 +327,10 @@ export function useSharedState() {
         case 'heartbeat':
           setPresenceMap((prev) => ({
             ...prev,
-            [activeSender]: {lastSeen: Date.now()},
+            [activeSender]: {
+              lastSeen: Date.now(),
+              createdAt: fallbackCreatedAt,
+            },
           }));
           break;
 
@@ -302,6 +342,7 @@ export function useSharedState() {
               past: containerRef.current.past,
               future: containerRef.current.future,
               sender: tabIdRef.current,
+              createdAt: createdAtRef.current,
             });
           }
           break;
@@ -336,7 +377,11 @@ export function useSharedState() {
 
     // Heartbeat: 1.5s
     const heartbeatInterval = setInterval(() => {
-      bc.postMessage({type: 'heartbeat', sender: tabIdRef.current});
+      bc.postMessage({
+        type: 'heartbeat',
+        sender: tabIdRef.current,
+        createdAt: createdAtRef.current,
+      });
     }, 1500);
 
     // Prune stale tabs: 2.0s
