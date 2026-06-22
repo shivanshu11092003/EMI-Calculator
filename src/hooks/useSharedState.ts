@@ -137,10 +137,31 @@ export function useSharedState() {
     }) => {
       if (typeof window === 'undefined') return;
       const url = new URL(window.location.href);
-      url.searchParams.set('amount', inputs.loanAmount.toString());
-      url.searchParams.set('rate', inputs.interestRate.toString());
-      url.searchParams.set('tenure', inputs.tenure.toString());
-      url.searchParams.set('start', inputs.startDate);
+
+      if (inputs.loanAmount !== DEFAULTS.singleInputs.loanAmount) {
+        url.searchParams.set('amount', inputs.loanAmount.toString());
+      } else {
+        url.searchParams.delete('amount');
+      }
+
+      if (inputs.interestRate !== DEFAULTS.singleInputs.interestRate) {
+        url.searchParams.set('rate', inputs.interestRate.toString());
+      } else {
+        url.searchParams.delete('rate');
+      }
+
+      if (inputs.tenure !== DEFAULTS.singleInputs.tenure) {
+        url.searchParams.set('tenure', inputs.tenure.toString());
+      } else {
+        url.searchParams.delete('tenure');
+      }
+
+      if (inputs.startDate !== DEFAULTS.singleInputs.startDate) {
+        url.searchParams.set('start', inputs.startDate);
+      } else {
+        url.searchParams.delete('start');
+      }
+
       window.history.replaceState({}, '', url.toString());
     },
     [],

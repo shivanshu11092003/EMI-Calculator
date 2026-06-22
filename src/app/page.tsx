@@ -293,7 +293,7 @@ export default function Home() {
           )}
 
           {state.mode === 'prepayment' && (
-            <div className="grid animate-fade-in grid-cols-1 items-start gap-6 lg:grid-cols-3">
+            <div className="grid animate-fade-in grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="lg:col-span-1">
                 <InputPanel
                   loanAmount={loanAmount}
@@ -301,9 +301,10 @@ export default function Home() {
                   tenure={tenure}
                   startDate={startDate}
                   onChange={handleInputChange}
+                  className="h-full"
                 />
               </div>
-              <div className="flex flex-col gap-6 lg:col-span-2">
+              <div className="flex h-full flex-col gap-6 lg:col-span-2">
                 <PrepaymentPlanner
                   prepayments={state.prepayments}
                   tenure={deferredTenure}

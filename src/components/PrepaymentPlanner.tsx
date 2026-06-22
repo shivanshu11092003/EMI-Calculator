@@ -88,7 +88,7 @@ export default function PrepaymentPlanner({
   const sortedPrepayments = [...prepayments].sort((a, b) => a.month - b.month);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full flex-col gap-6">
       {/* Title */}
       <div className="border-[var(--card-border)] border-b pb-2.5">
         <h2 className="font-bold text-[var(--text-primary)] text-sm">
@@ -99,7 +99,7 @@ export default function PrepaymentPlanner({
       {/* Impact Indicators */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Interest Saved */}
-        <div className="flex items-center gap-3.5 rounded-lg border border-[var(--interest-color)]/10 bg-[var(--interest-color)]/5 p-4.5 shadow-sm">
+        <div className="flex items-center gap-3.5 rounded-lg p-4.5 shadow-sm">
           <div className="flex items-center justify-center rounded-lg bg-[var(--interest-color)] p-2.5 text-white">
             <GiftOutlined style={{fontSize: 18}} />
           </div>
@@ -114,7 +114,7 @@ export default function PrepaymentPlanner({
         </div>
 
         {/* Tenure Reduced */}
-        <div className="flex items-center gap-3.5 rounded-lg border border-indigo-500/10 bg-indigo-500/5 p-4.5 shadow-sm">
+        <div className="flex items-center gap-3.5 rounded-lg p-4.5 shadow-sm">
           <div className="flex items-center justify-center rounded-lg bg-indigo-500 p-2.5 text-white">
             <HourglassOutlined style={{fontSize: 18}} />
           </div>
@@ -129,9 +129,9 @@ export default function PrepaymentPlanner({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Prepayment Form */}
-        <Card className="lg:col-span-1">
+        <Card className="flex h-full min-h-[260px] flex-col lg:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-1.5 border-[var(--card-border)] border-b pb-2 font-bold text-[var(--text-primary)] text-xs normal-case">
               <PlusOutlined style={{color: 'var(--primary)'}} />
@@ -215,25 +215,25 @@ export default function PrepaymentPlanner({
         </Card>
 
         {/* Prepayments List */}
-        <Card className="lg:col-span-2">
+        <Card className="flex h-full min-h-[260px] flex-col lg:col-span-2">
           <CardHeader>
             <CardTitle className="border-[var(--card-border)] border-b pb-2 font-bold text-[var(--text-primary)] text-xs normal-case">
               Scheduled Prepayments
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-1 flex-col justify-between overflow-hidden">
             <Table<Prepayment>
               dataSource={sortedPrepayments}
               columns={columns}
               rowKey="id"
               pagination={{
-                pageSize: 5,
+                pageSize: 3,
                 showSizeChanger: false,
                 size: 'small',
               }}
               locale={{
                 emptyText: (
-                  <div className="py-6 text-center font-semibold text-[var(--text-secondary)] text-xs">
+                  <div className="py-12 text-center font-semibold text-[var(--text-secondary)] text-xs">
                     No Prepayments Scheduled
                   </div>
                 ),

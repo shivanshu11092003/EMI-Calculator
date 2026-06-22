@@ -15,6 +15,7 @@ interface InputPanelProps {
     tenure?: number;
     startDate?: string;
   }) => void;
+  className?: string;
 }
 
 export default function InputPanel({
@@ -23,9 +24,10 @@ export default function InputPanel({
   tenure,
   startDate,
   onChange,
+  className,
 }: InputPanelProps) {
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle>Loan Details</CardTitle>
       </CardHeader>
