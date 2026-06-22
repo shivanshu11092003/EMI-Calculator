@@ -112,28 +112,34 @@ export function useSharedState() {
   useEffect(() => {
     const currentState = container.state;
 
-    // Apply document theme
+    // Apply document theme immediately
     applyTheme(currentState.theme);
 
-    // Sync URL queries if in single mode
-    if (currentState.mode === "single") {
-      updateUrlParams(currentState.singleInputs);
-    }
+    // Debounce URL updates and broadcasting by 100ms to avoid UI lag on drags
+    const timer = setTimeout(() => {
+      // Sync URL queries if in single mode
+      if (currentState.mode === "single") {
+        updateUrlParams(currentState.singleInputs);
+      }
 
-    // Broadcast state updates if they originated locally
-    if (isLocalUpdateRef.current && bcRef.current) {
-      bcRef.current.postMessage({
-        type: isUndoRedoRef.current ? "undo_redo" : "state_change",
-        state: currentState,
-        past: container.past,
-        future: container.future,
-        sender: tabId,
-      });
-      isLocalUpdateRef.current = false;
-      isUndoRedoRef.current = false;
-    }
+      // Broadcast state updates if they originated locally
+      if (isLocalUpdateRef.current && bcRef.current) {
+        bcRef.current.postMessage({
+          type: isUndoRedoRef.current ? "undo_redo" : "state_change",
+          state: currentState,
+          past: container.past,
+          future: container.future,
+          sender: tabId,
+        });
+        isLocalUpdateRef.current = false;
+        isUndoRedoRef.current = false;
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [container.state]);
-
   const updateState = (updater: Partial<AppState> | ((prev: AppState) => AppState)) => {
     setContainer((prevContainer) => {
       const nextState =

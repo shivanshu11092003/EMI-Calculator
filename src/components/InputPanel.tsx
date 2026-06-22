@@ -2,6 +2,7 @@
 
 import { DatePicker, InputNumber, Slider } from "antd";
 import dayjs from "dayjs";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface InputPanelProps {
   loanAmount: number;
@@ -19,10 +20,11 @@ export default function InputPanel({
   onChange,
 }: InputPanelProps) {
   return (
-    <div className="flex flex-col gap-5 p-5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm">
-      <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] border-b border-[var(--card-border)] pb-2.5">
-        Loan Details
-      </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Loan Details</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-5">
 
       {/* Loan Amount */}
       <div className="flex flex-col gap-2">
@@ -34,7 +36,7 @@ export default function InputPanel({
             step={5000}
             value={loanAmount}
             onChange={(val) => {
-              if (val !== null) onChange({ loanAmount: val });
+              if (val !== null && val !== loanAmount) onChange({ loanAmount: val });
             }}
             formatter={(value) => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
             parser={(value) => (value ? parseFloat(value.replace(/₹\s?|(,*)/g, "")) : 10000)}
@@ -47,7 +49,9 @@ export default function InputPanel({
           max={5000000}
           step={5000}
           value={loanAmount}
-          onChange={(val) => onChange({ loanAmount: val })}
+          onChange={(val) => {
+            if (val !== loanAmount) onChange({ loanAmount: val });
+          }}
           tooltip={{
             formatter: (val) =>
               new Intl.NumberFormat("en-IN", {
@@ -73,7 +77,7 @@ export default function InputPanel({
             step={0.1}
             value={interestRate}
             onChange={(val) => {
-              if (val !== null) onChange({ interestRate: val });
+              if (val !== null && val !== interestRate) onChange({ interestRate: val });
             }}
             formatter={(value) => `${value}%`}
             parser={(value) => (value ? parseFloat(value.replace("%", "")) : 1)}
@@ -86,7 +90,9 @@ export default function InputPanel({
           max={36}
           step={0.05}
           value={interestRate}
-          onChange={(val) => onChange({ interestRate: val })}
+          onChange={(val) => {
+            if (val !== interestRate) onChange({ interestRate: val });
+          }}
           tooltip={{ formatter: (val) => `${val}% p.a.` }}
         />
         <div className="flex justify-between text-xs text-[var(--text-muted)] font-bold">
@@ -105,7 +111,7 @@ export default function InputPanel({
             step={1}
             value={tenure}
             onChange={(val) => {
-              if (val !== null) onChange({ tenure: val });
+              if (val !== null && val !== tenure) onChange({ tenure: val });
             }}
             formatter={(value) => `${value} mo`}
             parser={(value) => (value ? parseInt(value.replace(" mo", ""), 10) : 1)}
@@ -118,7 +124,9 @@ export default function InputPanel({
           max={84}
           step={1}
           value={tenure}
-          onChange={(val) => onChange({ tenure: val })}
+          onChange={(val) => {
+            if (val !== tenure) onChange({ tenure: val });
+          }}
           tooltip={{
             formatter: (val) => {
               if (!val) return "0 mo";
@@ -153,6 +161,7 @@ export default function InputPanel({
           />
         </div>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

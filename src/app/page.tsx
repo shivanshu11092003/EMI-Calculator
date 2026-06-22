@@ -1,7 +1,7 @@
 "use client";
 
 import { theme as antdTheme, ConfigProvider, Skeleton, Spin, Tabs } from "antd";
-import { useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import AmortizationSchedule from "../components/AmortizationSchedule";
 import Header from "../components/Header";
 import InputPanel from "../components/InputPanel";
@@ -16,7 +16,6 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
 
   const {
-    tabId,
     tabNumber,
     state,
     past,
@@ -26,6 +25,14 @@ export default function Home() {
     undo,
     redo,
   } = useSharedState();
+
+  const { loanAmount, interestRate, tenure, startDate } = state.singleInputs;
+
+  // Defer heavy data computations to allow 60fps butter-smooth slider dragging
+  const deferredLoanAmount = useDeferredValue(loanAmount);
+  const deferredInterestRate = useDeferredValue(interestRate);
+  const deferredTenure = useDeferredValue(tenure);
+  const deferredScenarios = useDeferredValue(state.scenarios);
 
   useEffect(() => {
     setIsMounted(true);
@@ -38,7 +45,7 @@ export default function Home() {
         theme={{
           algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
           token: {
-            colorPrimary: "#00d09c",
+            colorPrimary: "#2563eb",
             borderRadius: 12,
             fontFamily: "'Inter', system-ui, sans-serif",
           },
@@ -56,18 +63,20 @@ export default function Home() {
     );
   }
 
-  const { loanAmount, interestRate, tenure, startDate } = state.singleInputs;
-
   const prepayList = state.mode === "prepayment" ? state.prepayments : [];
-  const mainCalc = generateAmortizationSchedule(loanAmount, interestRate, tenure, prepayList);
+
+  // Amortization schedule calculated using deferred values for heavy table/chart
+  const mainCalc = generateAmortizationSchedule(deferredLoanAmount, deferredInterestRate, deferredTenure, prepayList);
+
+  // Keep EMI calculation immediate so numbers in SummaryCards update in real-time
   const monthlyEMI = calculateEMI(loanAmount, interestRate, tenure);
 
-  // Compare mode best calculation
+  // Compare mode best calculation using deferred scenarios
   let bestScenarioName = "";
   if (state.mode === "compare") {
     let bestIndex = 0;
     let minPayable = Infinity;
-    state.scenarios.forEach((sc, idx) => {
+    deferredScenarios.forEach((sc, idx) => {
       const emi = calculateEMI(sc.loanAmount, sc.interestRate, sc.tenure);
       const payable = emi * sc.tenure;
       if (payable < minPayable) {
@@ -75,14 +84,14 @@ export default function Home() {
         bestIndex = idx;
       }
     });
-    bestScenarioName = state.scenarios[bestIndex].name;
+    bestScenarioName = deferredScenarios[bestIndex].name;
   }
 
   const displaySchedule = state.mode === "compare"
     ? (() => {
       let bestIndex = 0;
       let minPayable = Infinity;
-      state.scenarios.forEach((sc, idx) => {
+      deferredScenarios.forEach((sc, idx) => {
         const emi = calculateEMI(sc.loanAmount, sc.interestRate, sc.tenure);
         const payable = emi * sc.tenure;
         if (payable < minPayable) {
@@ -90,7 +99,7 @@ export default function Home() {
           bestIndex = idx;
         }
       });
-      const bestSc = state.scenarios[bestIndex];
+      const bestSc = deferredScenarios[bestIndex];
       return generateAmortizationSchedule(bestSc.loanAmount, bestSc.interestRate, bestSc.tenure, []).schedule;
     })()
     : mainCalc.schedule;
@@ -99,7 +108,7 @@ export default function Home() {
     ? (() => {
       let bestIndex = 0;
       let minPayable = Infinity;
-      state.scenarios.forEach((sc, idx) => {
+      deferredScenarios.forEach((sc, idx) => {
         const emi = calculateEMI(sc.loanAmount, sc.interestRate, sc.tenure);
         const payable = emi * sc.tenure;
         if (payable < minPayable) {
@@ -107,7 +116,7 @@ export default function Home() {
           bestIndex = idx;
         }
       });
-      const bestSc = state.scenarios[bestIndex];
+      const bestSc = deferredScenarios[bestIndex];
       return generateAmortizationSchedule(bestSc.loanAmount, bestSc.interestRate, bestSc.tenure, []).breakEvenMonth;
     })()
     : mainCalc.breakEvenMonth;
@@ -168,7 +177,7 @@ export default function Home() {
       theme={{
         algorithm: state.theme === "dark" ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
-          colorPrimary: "#00d09c",
+          colorPrimary: "var(--primary)",
           borderRadius: 12,
           fontFamily: "'Inter', system-ui, sans-serif",
         },
@@ -198,11 +207,12 @@ export default function Home() {
               { key: "prepayment", label: "Prepayments" },
             ]}
             className="w-full font-bold border-b border-[var(--card-border)] pb-2"
+
           />
 
           {/* Dashboard Sections */}
           {state.mode === "single" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start animate-fade-in">
               <div className="lg:col-span-1">
                 <InputPanel
                   loanAmount={loanAmount}
@@ -222,24 +232,26 @@ export default function Home() {
                   tenure={tenure}
                 />
                 <SensitivityTable
-                  loanAmount={loanAmount}
-                  currentRate={interestRate}
-                  currentTenure={tenure}
+                  loanAmount={deferredLoanAmount}
+                  currentRate={deferredInterestRate}
+                  currentTenure={deferredTenure}
                 />
               </div>
             </div>
           )}
 
           {state.mode === "compare" && (
-            <LoanComparison
-              scenarios={state.scenarios}
-              onScenarioChange={handleScenarioChange}
-              onActivateScenario={handleActivateScenario}
-            />
+            <div className="animate-fade-in">
+              <LoanComparison
+                scenarios={deferredScenarios}
+                onScenarioChange={handleScenarioChange}
+                onActivateScenario={handleActivateScenario}
+              />
+            </div>
           )}
 
           {state.mode === "prepayment" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start animate-fade-in">
               <div className="lg:col-span-1">
                 <InputPanel
                   loanAmount={loanAmount}
@@ -252,12 +264,9 @@ export default function Home() {
               <div className="lg:col-span-2 flex flex-col gap-6">
                 <PrepaymentPlanner
                   prepayments={state.prepayments}
-                  tenure={tenure}
+                  tenure={deferredTenure}
                   interestSaved={mainCalc.interestSaved}
                   tenureReduced={mainCalc.tenureReduced}
-                  actualTenure={mainCalc.actualTenure}
-                  originalInterest={mainCalc.originalTotalInterest}
-                  newInterest={mainCalc.totalInterest}
                   onAddPrepayment={handleAddPrepayment}
                   onRemovePrepayment={handleRemovePrepayment}
                 />

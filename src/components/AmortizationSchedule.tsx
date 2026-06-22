@@ -1,22 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
-import { Table, Segmented, Button } from "antd";
-import { TableOutlined, BarChartOutlined, DownloadOutlined } from "@ant-design/icons";
-import { AmortizationRow } from "../utils/formulas";
-import { exportAmortizationToCSV } from "../utils/csvExport";
+import { BarChartOutlined, DownloadOutlined, TableOutlined } from "@ant-design/icons";
+import type { TableProps } from "antd";
+import { Button, Segmented, Table } from "antd";
 import dayjs from "dayjs";
+import { useState } from "react";
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
-import type { TableProps } from "antd";
+import { exportAmortizationToCSV } from "../utils/csvExport";
+import { AmortizationRow } from "../utils/formulas";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface AmortizationScheduleProps {
   schedule: AmortizationRow[];
@@ -68,7 +69,7 @@ export default function AmortizationSchedule({
           <span className="font-mono text-[var(--text-primary)] font-bold text-xs">
             {getCalendarMonth(record.month)}
             {isBreakEven && (
-              <span className="ml-2 inline-block px-1.5 py-0.5 rounded bg-emerald-500 text-white text-[8px] font-bold uppercase tracking-wide">
+              <span className="ml-2 inline-block px-1.5 py-0.5 rounded bg-[var(--interest-color)] text-[var(--background)] text-[8px] font-bold uppercase tracking-wide">
                 Break-even
               </span>
             )}
@@ -117,12 +118,12 @@ export default function AmortizationSchedule({
   ];
 
   return (
-    <div className="flex flex-col gap-5 p-5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm">
+    <Card>
       {/* Header and Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--card-border)] pb-4">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+      <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--card-border)] pb-4">
+        <CardTitle className="border-none pb-0">
           Amortization Schedule
-        </h2>
+        </CardTitle>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
@@ -145,90 +146,91 @@ export default function AmortizationSchedule({
             Export CSV
           </Button>
         </div>
-      </div>
-
-      {/* Amortization Views */}
-      {viewMode === "table" ? (
-        <div className="overflow-x-auto rounded-lg">
-          <Table<AmortizationRow>
-            dataSource={schedule}
-            columns={columns}
-            rowKey="month"
-            pagination={{
-              pageSize: 12,
-              showSizeChanger: false,
-              size: "small",
-            }}
-            rowClassName={(record) =>
-              record.month === breakEvenMonth
-                ? "bg-emerald-500/5 dark:bg-emerald-500/10 font-bold"
-                : ""
-            }
-            size="small"
-            bordered
-          />
-        </div>
-      ) : (
-        /* Chart View */
-        <div className="w-full h-80 sm:h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
-              <XAxis
-                dataKey="monthName"
-                stroke="var(--text-muted)"
-                fontSize={9}
-                tickLine={false}
-              />
-              <YAxis
-                stroke="var(--text-muted)"
-                fontSize={9}
-                tickLine={false}
-                tickFormatter={(val) => `₹${val / 1000}k`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "var(--card-bg)",
-                  borderColor: "var(--card-border)",
-                  borderRadius: "8px",
-                  fontSize: "10px",
-                  color: "var(--text-primary)",
-                  fontWeight: "bold",
-                }}
-                formatter={(value: any) => [formatCurrency(value), ""]}
-              />
-              <Legend
-                wrapperStyle={{ fontSize: "10px", fontWeight: "bold" }}
-                verticalAlign="bottom"
-                height={32}
-              />
-              <Bar
-                dataKey="principal"
-                name="Principal"
-                stackId="a"
-                fill="var(--principal-color)"
-              />
-              <Bar
-                dataKey="interest"
-                name="Interest"
-                stackId="a"
-                fill="var(--interest-color)"
-              />
-              {schedule.some((row) => row.prepayment > 0) && (
-                <Bar
-                  dataKey="prepayment"
-                  name="Prepayment"
-                  stackId="a"
-                  fill="var(--secondary)"
+      </CardHeader>
+      <CardContent className="pt-5">
+        {/* Amortization Views */}
+        {viewMode === "table" ? (
+          <div className="overflow-x-auto rounded-lg">
+            <Table<AmortizationRow>
+              dataSource={schedule}
+              columns={columns}
+              rowKey="month"
+              pagination={{
+                pageSize: 12,
+                showSizeChanger: false,
+                size: "small",
+              }}
+              rowClassName={(record) =>
+                record.month === breakEvenMonth
+                  ? "bg-[var(--interest-color)]/5 dark:bg-[var(--interest-color)]/10 font-bold"
+                  : ""
+              }
+              size="small"
+              bordered
+            />
+          </div>
+        ) : (
+          /* Chart View */
+          <div className="w-full h-80 sm:h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
+                <XAxis
+                  dataKey="monthName"
+                  stroke="var(--text-muted)"
+                  fontSize={9}
+                  tickLine={false}
                 />
-              )}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-    </div>
+                <YAxis
+                  stroke="var(--text-muted)"
+                  fontSize={9}
+                  tickLine={false}
+                  tickFormatter={(val) => `₹${val / 1000}k`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "var(--card-bg)",
+                    borderColor: "var(--card-border)",
+                    borderRadius: "8px",
+                    fontSize: "10px",
+                    color: "var(--text-primary)",
+                    fontWeight: "bold",
+                  }}
+                  formatter={(value: any) => [formatCurrency(value), ""]}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: "10px", fontWeight: "bold" }}
+                  verticalAlign="bottom"
+                  height={32}
+                />
+                <Bar
+                  dataKey="principal"
+                  name="Principal"
+                  stackId="a"
+                  fill="var(--principal-color)"
+                />
+                <Bar
+                  dataKey="interest"
+                  name="Interest"
+                  stackId="a"
+                  fill="var(--interest-color)"
+                />
+                {schedule.some((row) => row.prepayment > 0) && (
+                  <Bar
+                    dataKey="prepayment"
+                    name="Prepayment"
+                    stackId="a"
+                    fill="var(--secondary)"
+                  />
+                )}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

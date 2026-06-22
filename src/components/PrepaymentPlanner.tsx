@@ -5,15 +5,13 @@ import { Table, Button, InputNumber, Popconfirm, Form } from "antd";
 import { PlusOutlined, DeleteOutlined, GiftOutlined, HourglassOutlined } from "@ant-design/icons";
 import { Prepayment } from "../utils/formulas";
 import type { TableProps } from "antd";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface PrepaymentPlannerProps {
   prepayments: Prepayment[];
   tenure: number;
   interestSaved: number;
   tenureReduced: number;
-  actualTenure: number;
-  originalInterest: number;
-  newInterest: number;
   onAddPrepayment: (prepayment: { month: number; amount: number }) => void;
   onRemovePrepayment: (id: string) => void;
 }
@@ -23,9 +21,6 @@ export default function PrepaymentPlanner({
   tenure,
   interestSaved,
   tenureReduced,
-  actualTenure,
-  originalInterest,
-  newInterest,
   onAddPrepayment,
   onRemovePrepayment,
 }: PrepaymentPlannerProps) {
@@ -96,22 +91,22 @@ export default function PrepaymentPlanner({
       {/* Impact Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Interest Saved */}
-        <div className="flex items-center gap-3.5 p-4.5 rounded-xl bg-emerald-500/5 border border-emerald-500/10 shadow-sm">
-          <div className="p-2.5 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+        <div className="flex items-center gap-3.5 p-4.5 rounded-lg bg-[var(--interest-color)]/5 border border-[var(--interest-color)]/10 shadow-sm">
+          <div className="p-2.5 rounded-lg bg-[var(--interest-color)] text-white flex items-center justify-center">
             <GiftOutlined style={{ fontSize: 18 }} />
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
               Interest Saved
             </span>
-            <span className="text-xl font-extrabold text-emerald-500 font-mono">
+            <span className="text-xl font-extrabold text-[var(--interest-color)] font-mono">
               {formatCurrency(interestSaved)}
             </span>
           </div>
         </div>
 
         {/* Tenure Reduced */}
-        <div className="flex items-center gap-3.5 p-4.5 rounded-xl bg-indigo-500/5 border border-indigo-500/10 shadow-sm">
+        <div className="flex items-center gap-3.5 p-4.5 rounded-lg bg-indigo-500/5 border border-indigo-500/10 shadow-sm">
           <div className="p-2.5 rounded-lg bg-indigo-500 text-white flex items-center justify-center">
             <HourglassOutlined style={{ fontSize: 18 }} />
           </div>
@@ -128,11 +123,14 @@ export default function PrepaymentPlanner({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Prepayment Form */}
-        <div className="lg:col-span-1 p-4.5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm flex flex-col gap-4">
-          <h3 className="text-xs font-bold text-[var(--text-primary)] border-b border-[var(--card-border)] pb-2 flex items-center gap-1.5">
-            <PlusOutlined style={{ color: "var(--primary)" }} />
-            <span>Add Prepayment</span>
-          </h3>
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="border-b border-[var(--card-border)] pb-2 flex items-center gap-1.5 normal-case text-xs font-bold text-[var(--text-primary)]">
+              <PlusOutlined style={{ color: "var(--primary)" }} />
+              <span>Add Prepayment</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
 
           <Form
             form={form}
@@ -185,13 +183,17 @@ export default function PrepaymentPlanner({
               </Button>
             </Form.Item>
           </Form>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Prepayments List */}
-        <div className="lg:col-span-2 p-4.5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm flex flex-col gap-4">
-          <h3 className="text-xs font-bold text-[var(--text-primary)] border-b border-[var(--card-border)] pb-2">
-            Scheduled Prepayments
-          </h3>
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="border-b border-[var(--card-border)] pb-2 normal-case text-xs font-bold text-[var(--text-primary)]">
+              Scheduled Prepayments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
 
           <Table<Prepayment>
             dataSource={sortedPrepayments}
@@ -212,7 +214,8 @@ export default function PrepaymentPlanner({
             size="small"
             bordered
           />
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

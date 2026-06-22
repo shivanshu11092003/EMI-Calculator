@@ -46,8 +46,8 @@ export default function Header({
           {/* Connection status and live count */}
           <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]">
             {/* <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
             </span> */}
             <span className="hidden sm:inline font-mono text-[var(--text-muted)]">{tabId}</span>
             <span className="text-[var(--text-muted)]">•</span>

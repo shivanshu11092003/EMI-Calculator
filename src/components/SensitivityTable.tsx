@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { generateSensitivityGrid } from "../utils/formulas";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface SensitivityTableProps {
   loanAmount: number;
@@ -27,12 +28,13 @@ export default function SensitivityTable({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm">
-      <div className="border-b border-[var(--card-border)] pb-2.5">
-        <h2 className="text-sm font-bold text-[var(--text-primary)]">
+    <Card>
+      <CardHeader>
+        <CardTitle className="border-none pb-0 text-sm font-bold text-[var(--text-primary)] normal-case tracking-normal">
           Interest Rate vs Tenure Matrix
-        </h2>
-      </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
 
       <div className="overflow-x-auto rounded-lg border border-[var(--card-border)]">
         <table className="min-w-full divide-y divide-[var(--card-border)] text-center text-[10px] font-bold">
@@ -88,6 +90,7 @@ export default function SensitivityTable({
           </tbody>
         </table>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
