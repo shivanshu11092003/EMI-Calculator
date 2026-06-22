@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "biome lint .",
+    "format": "biome format .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
@@ -20,12 +22,14 @@
     "recharts": "^3.8.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "husky": "^9",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

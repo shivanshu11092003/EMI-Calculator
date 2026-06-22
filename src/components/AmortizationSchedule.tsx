@@ -1,10 +1,14 @@
-"use client";
+'use client';
 
-import { BarChartOutlined, DownloadOutlined, TableOutlined } from "@ant-design/icons";
-import type { TableProps } from "antd";
-import { Button, Segmented, Table } from "antd";
-import dayjs from "dayjs";
-import { useState } from "react";
+import {
+  BarChartOutlined,
+  DownloadOutlined,
+  TableOutlined,
+} from '@ant-design/icons';
+import type {TableProps} from 'antd';
+import {Button, Segmented, Table} from 'antd';
+import dayjs from 'dayjs';
+import {useState} from 'react';
 import {
   Bar,
   BarChart,
@@ -14,10 +18,10 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import { exportAmortizationToCSV } from "../utils/csvExport";
-import { AmortizationRow } from "../utils/formulas";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+} from 'recharts';
+import {exportAmortizationToCSV} from '../utils/csvExport';
+import type {AmortizationRow} from '../utils/formulas';
+import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
 
 interface AmortizationScheduleProps {
   schedule: AmortizationRow[];
@@ -30,19 +34,21 @@ export default function AmortizationSchedule({
   breakEvenMonth,
   startDate,
 }: AmortizationScheduleProps) {
-  const [viewMode, setViewMode] = useState<"table" | "chart">("table");
+  const [viewMode, setViewMode] = useState<'table' | 'chart'>('table');
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
       maximumFractionDigits: 0,
     }).format(val);
   };
 
   const getCalendarMonth = (monthNumber: number) => {
     if (!startDate) return `Month ${monthNumber}`;
-    return dayjs(startDate).add(monthNumber - 1, "month").format("MMM YYYY");
+    return dayjs(startDate)
+      .add(monthNumber - 1, 'month')
+      .format('MMM YYYY');
   };
 
   const handleDownload = () => {
@@ -58,18 +64,18 @@ export default function AmortizationSchedule({
   }));
 
   // Define Ant Design Table columns configuration
-  const columns: TableProps<AmortizationRow>["columns"] = [
+  const columns: TableProps<AmortizationRow>['columns'] = [
     {
-      title: "Month",
-      dataIndex: "month",
-      key: "month",
+      title: 'Month',
+      dataIndex: 'month',
+      key: 'month',
       render: (_, record) => {
         const isBreakEven = record.month === breakEvenMonth;
         return (
-          <span className="font-mono text-[var(--text-primary)] font-bold text-xs">
+          <span className="font-bold font-mono text-[var(--text-primary)] text-xs">
             {getCalendarMonth(record.month)}
             {isBreakEven && (
-              <span className="ml-2 inline-block px-1.5 py-0.5 rounded bg-[var(--interest-color)] text-[var(--background)] text-[8px] font-bold uppercase tracking-wide">
+              <span className="ml-2 inline-block rounded bg-[var(--interest-color)] px-1.5 py-0.5 font-bold text-[8px] text-[var(--background)] uppercase tracking-wide">
                 Break-even
               </span>
             )}
@@ -78,41 +84,44 @@ export default function AmortizationSchedule({
       },
     },
     {
-      title: "Installment",
-      dataIndex: "emi",
-      key: "emi",
-      render: (val) => (val > 0 ? formatCurrency(val) : "—"),
+      title: 'Installment',
+      dataIndex: 'emi',
+      key: 'emi',
+      render: (val) => (val > 0 ? formatCurrency(val) : '—'),
     },
     {
-      title: "Principal",
-      dataIndex: "principalPaid",
-      key: "principalPaid",
+      title: 'Principal',
+      dataIndex: 'principalPaid',
+      key: 'principalPaid',
       render: (val) => formatCurrency(val),
     },
     {
-      title: "Interest",
-      dataIndex: "interestPaid",
-      key: "interestPaid",
+      title: 'Interest',
+      dataIndex: 'interestPaid',
+      key: 'interestPaid',
       render: (val) => (
-        <span className="text-[var(--interest-color)] font-mono">{formatCurrency(val)}</span>
+        <span className="font-mono text-[var(--interest-color)]">
+          {formatCurrency(val)}
+        </span>
       ),
     },
     {
-      title: "Prepayment",
-      dataIndex: "prepayment",
-      key: "prepayment",
-      render: (val) => (
+      title: 'Prepayment',
+      dataIndex: 'prepayment',
+      key: 'prepayment',
+      render: (val) =>
         val > 0 ? (
-          <span className="text-[var(--principal-color)] font-mono">{formatCurrency(val)}</span>
+          <span className="font-mono text-[var(--principal-color)]">
+            {formatCurrency(val)}
+          </span>
         ) : (
-          "—"
-        )
-      ),
+          '—'
+        ),
     },
     {
-      title: "Remaining Balance",
-      dataIndex: "balanceRemaining",
-      key: "balanceRemaining",
+      title: 'Remaining Balance',
+      dataIndex: 'balanceRemaining',
+      key: 'balanceRemaining',
       render: (val) => formatCurrency(val),
     },
   ];
@@ -120,20 +129,20 @@ export default function AmortizationSchedule({
   return (
     <Card>
       {/* Header and Actions */}
-      <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--card-border)] pb-4">
+      <CardHeader className="flex flex-col items-start justify-between gap-4 border-[var(--card-border)] border-b pb-4 sm:flex-row sm:items-center">
         <CardTitle className="border-none pb-0">
           Amortization Schedule
         </CardTitle>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="flex w-full items-center justify-between gap-2.5 sm:w-auto sm:justify-end">
           <Segmented
             options={[
-              { label: "Table", value: "table", icon: <TableOutlined /> },
-              { label: "Chart", value: "chart", icon: <BarChartOutlined /> },
+              {label: 'Table', value: 'table', icon: <TableOutlined />},
+              {label: 'Chart', value: 'chart', icon: <BarChartOutlined />},
             ]}
             value={viewMode}
-            onChange={(val) => setViewMode(val as "table" | "chart")}
+            onChange={(val) => setViewMode(val as 'table' | 'chart')}
             size="middle"
           />
 
@@ -149,7 +158,7 @@ export default function AmortizationSchedule({
       </CardHeader>
       <CardContent className="pt-5">
         {/* Amortization Views */}
-        {viewMode === "table" ? (
+        {viewMode === 'table' ? (
           <div className="overflow-x-auto rounded-lg">
             <Table<AmortizationRow>
               dataSource={schedule}
@@ -158,12 +167,12 @@ export default function AmortizationSchedule({
               pagination={{
                 pageSize: 12,
                 showSizeChanger: false,
-                size: "small",
+                size: 'small',
               }}
               rowClassName={(record) =>
                 record.month === breakEvenMonth
-                  ? "bg-[var(--interest-color)]/5 dark:bg-[var(--interest-color)]/10 font-bold"
-                  : ""
+                  ? 'bg-[var(--interest-color)]/5 dark:bg-[var(--interest-color)]/10 font-bold'
+                  : ''
               }
               size="small"
               bordered
@@ -171,13 +180,16 @@ export default function AmortizationSchedule({
           </div>
         ) : (
           /* Chart View */
-          <div className="w-full h-80 sm:h-96">
+          <div className="h-80 w-full sm:h-96">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={chartData}
-                margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
+                margin={{top: 10, right: 10, left: -10, bottom: 5}}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--card-border)"
+                />
                 <XAxis
                   dataKey="monthName"
                   stroke="var(--text-muted)"
@@ -192,17 +204,17 @@ export default function AmortizationSchedule({
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "var(--card-bg)",
-                    borderColor: "var(--card-border)",
-                    borderRadius: "8px",
-                    fontSize: "10px",
-                    color: "var(--text-primary)",
-                    fontWeight: "bold",
+                    backgroundColor: 'var(--card-bg)',
+                    borderColor: 'var(--card-border)',
+                    borderRadius: '8px',
+                    fontSize: '10px',
+                    color: 'var(--text-primary)',
+                    fontWeight: 'bold',
                   }}
-                  formatter={(value: any) => [formatCurrency(value), ""]}
+                  formatter={(value: any) => [formatCurrency(value), '']}
                 />
                 <Legend
-                  wrapperStyle={{ fontSize: "10px", fontWeight: "bold" }}
+                  wrapperStyle={{fontSize: '10px', fontWeight: 'bold'}}
                   verticalAlign="bottom"
                   height={32}
                 />

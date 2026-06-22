@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+# Pre-commit hook to lint and format code before committing
+npm run lint
+npm run format

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { CheckOutlined } from "@ant-design/icons";
-import { Badge, Button, Slider } from "antd";
-import { calculateEMI } from "../utils/formulas";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {CheckOutlined} from '@ant-design/icons';
+import {Badge, Button, Slider} from 'antd';
+import {calculateEMI} from '../utils/formulas';
+import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
 
 interface Scenario {
   id: string;
@@ -25,9 +25,9 @@ export default function LoanComparison({
   onActivateScenario,
 }: LoanComparisonProps) {
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
       maximumFractionDigits: 0,
     }).format(val);
   };
@@ -56,13 +56,13 @@ export default function LoanComparison({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="border-b border-[var(--card-border)] pb-2.5">
-        <h2 className="text-sm font-bold text-[var(--text-primary)]">
+      <div className="border-[var(--card-border)] border-b pb-2.5">
+        <h2 className="font-bold text-[var(--text-primary)] text-sm">
           Compare Scenarios
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {results.map((res, index) => {
           const isBest = index === bestIndex;
 
@@ -70,7 +70,7 @@ export default function LoanComparison({
             <Card
               className="flex flex-col"
               style={{
-                borderColor: isBest ? "var(--primary)" : "var(--card-border)",
+                borderColor: isBest ? 'var(--primary)' : 'var(--card-border)',
               }}
             >
               <CardHeader>
@@ -83,9 +83,9 @@ export default function LoanComparison({
                 <div className="flex flex-col gap-4">
                   {/* Loan Amount */}
                   <div className="flex flex-col gap-1">
-                    <div className="flex justify-between text-[10px] font-bold text-[var(--text-secondary)]">
+                    <div className="flex justify-between font-bold text-[10px] text-[var(--text-secondary)]">
                       <span>Principal</span>
-                      <span className="text-[var(--text-primary)] font-bold">
+                      <span className="font-bold text-[var(--text-primary)]">
                         {formatCurrency(res.loanAmount)}
                       </span>
                     </div>
@@ -94,16 +94,18 @@ export default function LoanComparison({
                       max={5000000}
                       step={10000}
                       value={res.loanAmount}
-                      onChange={(val) => onScenarioChange(res.id, { loanAmount: val })}
-                      tooltip={{ formatter: (val) => formatCurrency(val || 0) }}
+                      onChange={(val) =>
+                        onScenarioChange(res.id, {loanAmount: val})
+                      }
+                      tooltip={{formatter: (val) => formatCurrency(val || 0)}}
                     />
                   </div>
 
                   {/* Interest Rate */}
                   <div className="flex flex-col gap-1">
-                    <div className="flex justify-between text-[10px] font-bold text-[var(--text-secondary)]">
+                    <div className="flex justify-between font-bold text-[10px] text-[var(--text-secondary)]">
                       <span>Rate</span>
-                      <span className="text-[var(--text-primary)] font-bold">
+                      <span className="font-bold text-[var(--text-primary)]">
                         {res.interestRate.toFixed(1)}%
                       </span>
                     </div>
@@ -112,16 +114,18 @@ export default function LoanComparison({
                       max={36}
                       step={0.1}
                       value={res.interestRate}
-                      onChange={(val) => onScenarioChange(res.id, { interestRate: val })}
-                      tooltip={{ formatter: (val) => `${val}% p.a.` }}
+                      onChange={(val) =>
+                        onScenarioChange(res.id, {interestRate: val})
+                      }
+                      tooltip={{formatter: (val) => `${val}% p.a.`}}
                     />
                   </div>
 
                   {/* Tenure */}
                   <div className="flex flex-col gap-1">
-                    <div className="flex justify-between text-[10px] font-bold text-[var(--text-secondary)]">
+                    <div className="flex justify-between font-bold text-[10px] text-[var(--text-secondary)]">
                       <span>Tenure</span>
-                      <span className="text-[var(--text-primary)] font-bold">
+                      <span className="font-bold text-[var(--text-primary)]">
                         {res.tenure} mo
                       </span>
                     </div>
@@ -130,29 +134,33 @@ export default function LoanComparison({
                       max={84}
                       step={1}
                       value={res.tenure}
-                      onChange={(val) => onScenarioChange(res.id, { tenure: val })}
-                      tooltip={{ formatter: (val) => `${val} mo` }}
+                      onChange={(val) =>
+                        onScenarioChange(res.id, {tenure: val})
+                      }
+                      tooltip={{formatter: (val) => `${val} mo`}}
                     />
                   </div>
                 </div>
 
                 {/* Calculated Outputs */}
-                <div className="flex flex-col gap-2 p-3 rounded-lg bg-[var(--input-bg)] mt-4">
-                  <div className="flex justify-between items-center text-xs font-bold">
+                <div className="mt-4 flex flex-col gap-2 rounded-lg bg-[var(--input-bg)] p-3">
+                  <div className="flex items-center justify-between font-bold text-xs">
                     <span className="text-[var(--text-secondary)]">EMI</span>
-                    <span className="text-[var(--text-primary)] font-mono">
+                    <span className="font-mono text-[var(--text-primary)]">
                       {formatCurrency(res.emi)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span className="text-[var(--text-secondary)]">Interest</span>
-                    <span className="text text-[var(--interest-color)] font-mono">
+                  <div className="flex items-center justify-between font-bold text-xs">
+                    <span className="text-[var(--text-secondary)]">
+                      Interest
+                    </span>
+                    <span className="text font-mono text-[var(--interest-color)]">
                       {formatCurrency(res.totalInterest)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-xs font-bold border-t border-[var(--card-border)] pt-2 mt-0.5">
+                  <div className="mt-0.5 flex items-center justify-between border-[var(--card-border)] border-t pt-2 font-bold text-xs">
                     <span className="text-[var(--text-primary)]">Total</span>
-                    <span className="text-xs font-extrabold text-[var(--text-primary)] font-mono">
+                    <span className="font-extrabold font-mono text-[var(--text-primary)] text-xs">
                       {formatCurrency(res.totalPayable)}
                     </span>
                   </div>
@@ -160,10 +168,10 @@ export default function LoanComparison({
 
                 {/* Promotion Button */}
                 <Button
-                  type={isBest ? "primary" : "default"}
+                  type={isBest ? 'primary' : 'default'}
                   onClick={() => onActivateScenario(res)}
                   icon={isBest ? <CheckOutlined /> : null}
-                  style={{ width: "100%", marginTop: 16 }}
+                  style={{width: '100%', marginTop: 16}}
                   size="small"
                 >
                   Promote to Workspace

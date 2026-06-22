@@ -1,24 +1,58 @@
-import { useEffect, useRef, useState } from "react";
-import { Prepayment } from "../utils/formulas";
+import {useCallback, useEffect, useRef, useState} from 'react';
+import type {Prepayment} from '../utils/formulas';
 
 export interface AppState {
-  mode: "single" | "compare" | "prepayment";
-  singleInputs: { loanAmount: number; interestRate: number; tenure: number; startDate: string };
-  scenarios: Array<{ id: string; name: string; loanAmount: number; interestRate: number; tenure: number }>;
+  mode: 'single' | 'compare' | 'prepayment';
+  singleInputs: {
+    loanAmount: number;
+    interestRate: number;
+    tenure: number;
+    startDate: string;
+  };
+  scenarios: Array<{
+    id: string;
+    name: string;
+    loanAmount: number;
+    interestRate: number;
+    tenure: number;
+  }>;
   prepayments: Prepayment[];
-  theme: "light" | "dark";
+  theme: 'light' | 'dark';
 }
 
 const DEFAULTS: AppState = {
-  mode: "single",
-  singleInputs: { loanAmount: 1500000, interestRate: 11, tenure: 48, startDate: "2026-06" },
+  mode: 'single',
+  singleInputs: {
+    loanAmount: 1500000,
+    interestRate: 11,
+    tenure: 48,
+    startDate: '2026-06',
+  },
   scenarios: [
-    { id: "1", name: "Scenario A", loanAmount: 1500000, interestRate: 11, tenure: 24 },
-    { id: "2", name: "Scenario B", loanAmount: 1500000, interestRate: 11, tenure: 48 },
-    { id: "3", name: "Scenario C", loanAmount: 1500000, interestRate: 11, tenure: 60 },
+    {
+      id: '1',
+      name: 'Scenario A',
+      loanAmount: 1500000,
+      interestRate: 11,
+      tenure: 24,
+    },
+    {
+      id: '2',
+      name: 'Scenario B',
+      loanAmount: 1500000,
+      interestRate: 11,
+      tenure: 48,
+    },
+    {
+      id: '3',
+      name: 'Scenario C',
+      loanAmount: 1500000,
+      interestRate: 11,
+      tenure: 60,
+    },
   ],
   prepayments: [],
-  theme: "light",
+  theme: 'light',
 };
 
 interface SharedStateContainer {
@@ -29,7 +63,7 @@ interface SharedStateContainer {
 
 export function useSharedState() {
   const [tabId] = useState(() => {
-    if (typeof window === "undefined") return "Tab-INIT";
+    if (typeof window === 'undefined') return 'Tab-INIT';
     return `Tab-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
   });
 
@@ -39,7 +73,9 @@ export function useSharedState() {
     future: [],
   });
 
-  const [presenceMap, setPresenceMap] = useState<Record<string, { lastSeen: number }>>({});
+  const [presenceMap, setPresenceMap] = useState<
+    Record<string, {lastSeen: number}>
+  >({});
 
   const bcRef = useRef<BroadcastChannel | null>(null);
   const tabIdRef = useRef(tabId);
@@ -67,46 +103,60 @@ export function useSharedState() {
     isLeaderRef.current = isLeader;
   }, [isLeader]);
 
-  const applyTheme = (theme: "light" | "dark") => {
-    if (typeof document === "undefined") return;
+  const applyTheme = useCallback((theme: 'light' | 'dark') => {
+    if (typeof document === 'undefined') return;
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
+    if (theme === 'dark') {
+      root.classList.add('dark');
     } else {
-      root.classList.remove("dark");
+      root.classList.remove('dark');
     }
-  };
+  }, []);
 
-  const updateUrlParams = (inputs: { loanAmount: number; interestRate: number; tenure: number; startDate: string }) => {
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.searchParams.set("amount", inputs.loanAmount.toString());
-    url.searchParams.set("rate", inputs.interestRate.toString());
-    url.searchParams.set("tenure", inputs.tenure.toString());
-    url.searchParams.set("start", inputs.startDate);
-    window.history.replaceState({}, "", url.toString());
-  };
+  const updateUrlParams = useCallback(
+    (inputs: {
+      loanAmount: number;
+      interestRate: number;
+      tenure: number;
+      startDate: string;
+    }) => {
+      if (typeof window === 'undefined') return;
+      const url = new URL(window.location.href);
+      url.searchParams.set('amount', inputs.loanAmount.toString());
+      url.searchParams.set('rate', inputs.interestRate.toString());
+      url.searchParams.set('tenure', inputs.tenure.toString());
+      url.searchParams.set('start', inputs.startDate);
+      window.history.replaceState({}, '', url.toString());
+    },
+    [],
+  );
 
-  const getInitialStateFromUrl = (): Partial<AppState> | null => {
-    if (typeof window === "undefined") return null;
+  const getInitialStateFromUrl = useCallback((): Partial<AppState> | null => {
+    if (typeof window === 'undefined') return null;
     const params = new URLSearchParams(window.location.search);
-    const amount = params.get("amount");
-    const rate = params.get("rate");
-    const tenure = params.get("tenure");
-    const start = params.get("start");
+    const amount = params.get('amount');
+    const rate = params.get('rate');
+    const tenure = params.get('tenure');
+    const start = params.get('start');
 
     if (amount || rate || tenure || start) {
       return {
         singleInputs: {
-          loanAmount: amount ? Math.max(10000, Math.min(5000000, Number(amount))) : DEFAULTS.singleInputs.loanAmount,
-          interestRate: rate ? Math.max(1, Math.min(36, Number(rate))) : DEFAULTS.singleInputs.interestRate,
-          tenure: tenure ? Math.max(1, Math.min(84, Number(tenure))) : DEFAULTS.singleInputs.tenure,
+          loanAmount: amount
+            ? Math.max(10000, Math.min(5000000, Number(amount)))
+            : DEFAULTS.singleInputs.loanAmount,
+          interestRate: rate
+            ? Math.max(1, Math.min(36, Number(rate)))
+            : DEFAULTS.singleInputs.interestRate,
+          tenure: tenure
+            ? Math.max(1, Math.min(84, Number(tenure)))
+            : DEFAULTS.singleInputs.tenure,
           startDate: start || DEFAULTS.singleInputs.startDate,
         },
       };
     }
     return null;
-  };
+  }, []);
 
   // Run Side Effects (Broadcasting, Theme, URL Parameters) on State Change in useEffect!
   useEffect(() => {
@@ -118,14 +168,14 @@ export function useSharedState() {
     // Debounce URL updates and broadcasting by 100ms to avoid UI lag on drags
     const timer = setTimeout(() => {
       // Sync URL queries if in single mode
-      if (currentState.mode === "single") {
+      if (currentState.mode === 'single') {
         updateUrlParams(currentState.singleInputs);
       }
 
       // Broadcast state updates if they originated locally
       if (isLocalUpdateRef.current && bcRef.current) {
         bcRef.current.postMessage({
-          type: isUndoRedoRef.current ? "undo_redo" : "state_change",
+          type: isUndoRedoRef.current ? 'undo_redo' : 'state_change',
           state: currentState,
           past: container.past,
           future: container.future,
@@ -139,13 +189,22 @@ export function useSharedState() {
     return () => {
       clearTimeout(timer);
     };
-  }, [container.state]);
-  const updateState = (updater: Partial<AppState> | ((prev: AppState) => AppState)) => {
+  }, [
+    container.state,
+    container.past,
+    updateUrlParams,
+    tabId, // Apply document theme immediately
+    applyTheme,
+    container.future,
+  ]);
+  const updateState = (
+    updater: Partial<AppState> | ((prev: AppState) => AppState),
+  ) => {
     setContainer((prevContainer) => {
       const nextState =
-        typeof updater === "function"
+        typeof updater === 'function'
           ? updater(prevContainer.state)
-          : { ...prevContainer.state, ...updater };
+          : {...prevContainer.state, ...updater};
 
       if (JSON.stringify(nextState) === JSON.stringify(prevContainer.state)) {
         return prevContainer;
@@ -163,7 +222,7 @@ export function useSharedState() {
     });
   };
 
-  const triggerUndo = () => {
+  const triggerUndo = useCallback(() => {
     setContainer((prev) => {
       if (prev.past.length === 0) return prev;
 
@@ -171,7 +230,8 @@ export function useSharedState() {
       isUndoRedoRef.current = true;
 
       const newPast = [...prev.past];
-      const poppedState = newPast.pop()!;
+      const poppedState = newPast.pop();
+      if (!poppedState) return prev;
       const newFuture = [prev.state, ...prev.future];
 
       return {
@@ -180,9 +240,9 @@ export function useSharedState() {
         future: newFuture,
       };
     });
-  };
+  }, []);
 
-  const triggerRedo = () => {
+  const triggerRedo = useCallback(() => {
     setContainer((prev) => {
       if (prev.future.length === 0) return prev;
 
@@ -190,7 +250,8 @@ export function useSharedState() {
       isUndoRedoRef.current = true;
 
       const newFuture = [...prev.future];
-      const poppedState = newFuture.shift()!;
+      const poppedState = newFuture.shift();
+      if (!poppedState) return prev;
       const newPast = [...prev.past, prev.state];
 
       return {
@@ -199,44 +260,44 @@ export function useSharedState() {
         future: newFuture,
       };
     });
-  };
+  }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
-    const bc = new BroadcastChannel("groww_emi_sync_channel");
+    const bc = new BroadcastChannel('groww_emi_sync_channel');
     bcRef.current = bc;
 
     // Join channel
-    bc.postMessage({ type: "join", sender: tabIdRef.current });
+    bc.postMessage({type: 'join', sender: tabIdRef.current});
 
     bc.onmessage = (event) => {
-      const { type, state, past, future, sender, tabId: msgTabId } = event.data;
+      const {type, state, past, future, sender, tabId: msgTabId} = event.data;
       const activeSender = sender || msgTabId;
 
       if (activeSender === tabIdRef.current) return;
 
       switch (type) {
-        case "join":
-          bc.postMessage({ type: "pong", tabId: tabIdRef.current });
+        case 'join':
+          bc.postMessage({type: 'pong', tabId: tabIdRef.current});
           setPresenceMap((prev) => ({
             ...prev,
-            [activeSender]: { lastSeen: Date.now() },
+            [activeSender]: {lastSeen: Date.now()},
           }));
           break;
 
-        case "pong":
-        case "heartbeat":
+        case 'pong':
+        case 'heartbeat':
           setPresenceMap((prev) => ({
             ...prev,
-            [activeSender]: { lastSeen: Date.now() },
+            [activeSender]: {lastSeen: Date.now()},
           }));
           break;
 
-        case "request_state":
+        case 'request_state':
           if (isLeaderRef.current) {
             bc.postMessage({
-              type: "respond_state",
+              type: 'respond_state',
               state: containerRef.current.state,
               past: containerRef.current.past,
               future: containerRef.current.future,
@@ -245,9 +306,9 @@ export function useSharedState() {
           }
           break;
 
-        case "respond_state":
-        case "state_change":
-        case "undo_redo":
+        case 'respond_state':
+        case 'state_change':
+        case 'undo_redo':
           isLocalUpdateRef.current = false; // Block broadcasting this update
           setContainer({
             state,
@@ -266,23 +327,23 @@ export function useSharedState() {
     if (urlInit) {
       isLocalUpdateRef.current = true;
       setContainer((prev) => {
-        const nextState = { ...prev.state, ...urlInit };
-        return { state: nextState, past: [], future: [] };
+        const nextState = {...prev.state, ...urlInit};
+        return {state: nextState, past: [], future: []};
       });
     } else {
-      bc.postMessage({ type: "request_state", sender: tabIdRef.current });
+      bc.postMessage({type: 'request_state', sender: tabIdRef.current});
     }
 
     // Heartbeat: 1.5s
     const heartbeatInterval = setInterval(() => {
-      bc.postMessage({ type: "heartbeat", sender: tabIdRef.current });
+      bc.postMessage({type: 'heartbeat', sender: tabIdRef.current});
     }, 1500);
 
     // Prune stale tabs: 2.0s
     const pruneInterval = setInterval(() => {
       setPresenceMap((prev) => {
         const now = Date.now();
-        const next = { ...prev };
+        const next = {...prev};
         let changed = false;
         Object.keys(next).forEach((id) => {
           if (now - next[id].lastSeen > 4000) {
@@ -297,14 +358,19 @@ export function useSharedState() {
     // Undo/Redo keyboard binding
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
         return;
       }
 
-      const isUndo = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !e.shiftKey;
+      const isUndo =
+        (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey;
       const isRedo =
-        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") ||
-        ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z");
+        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'z');
 
       if (isUndo) {
         e.preventDefault();
@@ -315,15 +381,15 @@ export function useSharedState() {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       clearInterval(heartbeatInterval);
       clearInterval(pruneInterval);
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
       bc.close();
     };
-  }, [tabId]);
+  }, [triggerUndo, triggerRedo, getInitialStateFromUrl]);
 
   return {
     tabId,

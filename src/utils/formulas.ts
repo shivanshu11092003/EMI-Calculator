@@ -33,7 +33,11 @@ export interface AmortizationScheduleResult {
  * Calculates standard monthly EMI
  * P * r * (1 + r)^n / ((1 + r)^n - 1)
  */
-export function calculateEMI(principal: number, annualRate: number, tenureMonths: number): number {
+export function calculateEMI(
+  principal: number,
+  annualRate: number,
+  tenureMonths: number,
+): number {
   if (principal <= 0 || tenureMonths <= 0) return 0;
   if (annualRate <= 0) return principal / tenureMonths;
 
@@ -41,10 +45,10 @@ export function calculateEMI(principal: number, annualRate: number, tenureMonths
   const n = tenureMonths;
 
   try {
-    const rateFactor = Math.pow(1 + r, n);
+    const rateFactor = (1 + r) ** n;
     const emi = (principal * r * rateFactor) / (rateFactor - 1);
-    return isNaN(emi) || !isFinite(emi) ? 0 : emi;
-  } catch (error) {
+    return Number.isNaN(emi) || !Number.isFinite(emi) ? 0 : emi;
+  } catch (_error) {
     return 0;
   }
 }
@@ -56,7 +60,7 @@ export function generateAmortizationSchedule(
   principal: number,
   annualRate: number,
   tenureMonths: number,
-  prepayments: Prepayment[] = []
+  prepayments: Prepayment[] = [],
 ): AmortizationScheduleResult {
   const r = annualRate / 12 / 100;
   const standardEMI = calculateEMI(principal, annualRate, tenureMonths);
@@ -107,7 +111,7 @@ export function generateAmortizationSchedule(
       // If prepayment fully clears the balance
       if (prepayment > 0 && schedule.length > 0) {
         // Update the last row or append a closing row representing prepayment
-        const lastRow = schedule[schedule.length - 1];
+        const _lastRow = schedule[schedule.length - 1];
         // If we want to record the prepayment at this month:
         schedule.push({
           month,
@@ -136,7 +140,7 @@ export function generateAmortizationSchedule(
     const emiPaid = principalPaid + interestPaid;
     totalInterest += interestPaid;
     cumulativeInterest += interestPaid;
-    cumulativePrincipal += (principalPaid + prepayment);
+    cumulativePrincipal += principalPaid + prepayment;
 
     if (breakEvenMonth === -1 && cumulativePrincipal > cumulativeInterest) {
       breakEvenMonth = month;
@@ -180,24 +184,26 @@ export function generateAmortizationSchedule(
 export function generateSensitivityGrid(
   principal: number,
   currentRate: number,
-  currentTenure: number
+  currentTenure: number,
 ) {
   // Rates: currentRate ± 1%, ± 2%, ± 3% (clamped to 1-36%)
   const rateOffsets = [-3, -2, -1, 0, 1, 2, 3];
   const rates = Array.from(
     new Set(
-      rateOffsets
-        .map((offset) => Math.min(36, Math.max(1, currentRate + offset)))
-    )
+      rateOffsets.map((offset) =>
+        Math.min(36, Math.max(1, currentRate + offset)),
+      ),
+    ),
   ).sort((a, b) => a - b);
 
   // Tenures: currentTenure ± 6, ± 12, ± 24 months (clamped to 1-84 months)
   const tenureOffsets = [-24, -12, -6, 0, 6, 12, 24];
   const tenures = Array.from(
     new Set(
-      tenureOffsets
-        .map((offset) => Math.min(84, Math.max(1, currentTenure + offset)))
-    )
+      tenureOffsets.map((offset) =>
+        Math.min(84, Math.max(1, currentTenure + offset)),
+      ),
+    ),
   ).sort((a, b) => a - b);
 
   // Build grid: grid[tenure][rate] = EMI
