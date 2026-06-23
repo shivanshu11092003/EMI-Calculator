@@ -1,6 +1,6 @@
 'use client';
 
-import {theme as antdTheme, App, ConfigProvider, Skeleton, Spin} from 'antd';
+import {App, theme as antdTheme, ConfigProvider, Skeleton, Spin} from 'antd';
 import {Calculator, Coins, GitCompare} from 'lucide-react';
 import {useDeferredValue, useEffect, useState} from 'react';
 import AmortizationSchedule from '../components/AmortizationSchedule';
@@ -361,23 +361,14 @@ export default function Home() {
 
     let activeTheme: 'light' | 'dark' = 'light';
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-      if (id) {
-        try {
-          const item = localStorage.getItem(`emi_config_${id}`);
-          if (item) {
-            const parsed = JSON.parse(item);
-            if (parsed && parsed.theme) {
-              activeTheme = parsed.theme;
-            }
-          }
-        } catch (e) {}
+      const storedTheme = localStorage.getItem('emi_theme') as
+        | 'light'
+        | 'dark'
+        | null;
+      if (storedTheme) {
+        activeTheme = storedTheme;
       } else {
-        if (
-          window.matchMedia &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches
-        ) {
+        if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
           activeTheme = 'dark';
         }
       }

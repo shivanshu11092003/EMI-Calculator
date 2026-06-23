@@ -35,20 +35,12 @@ export default function RootLayout({
           {`
             (function() {
               try {
-                var params = new URLSearchParams(window.location.search);
-                var id = params.get('id');
-                var theme = 'light';
-                if (id) {
-                  var item = localStorage.getItem('emi_config_' + id);
-                  if (item) {
-                    var parsed = JSON.parse(item);
-                    if (parsed && parsed.theme) {
-                      theme = parsed.theme;
-                    }
-                  }
-                } else {
+                var theme = localStorage.getItem('emi_theme');
+                if (!theme) {
                   if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                     theme = 'dark';
+                  } else {
+                    theme = 'light';
                   }
                 }
                 if (theme === 'dark') {
