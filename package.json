@@ -9,10 +9,9 @@
     "lint": "biome lint .",
     "format": "biome format .",
     "prepare": "husky install",
-    "pages:build": "npx @cloudflare/next-on-pages",
-    "pages:deploy": "npm run pages:build && wrangler pages deploy .vercel/output",
-    "pages:dev": "wrangler pages dev .vercel/output --compatibility-flag=nodejs_compat",
-    "pages:watch": "npx @cloudflare/next-on-pages --watch"
+    "pages:build": "next build",
+    "pages:deploy": "wrangler deploy",
+    "pages:dev": "wrangler dev"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
