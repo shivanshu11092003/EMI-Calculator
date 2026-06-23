@@ -40,7 +40,7 @@ export default function Header({
               href="/"
               className="flex items-center gap-2 font-bold text-sm tracking-tight decoration-none"
             >
-              <span className="hidden font-semibold text-[var(--text-primary)] leading-none sm:block">
+              <span className="font-semibold text-[var(--text-primary)] leading-none">
                 CALCI
                 <span className="mt-0.5 block font-normal text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
                   EMI Calculator

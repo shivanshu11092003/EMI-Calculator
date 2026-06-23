@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Shared Workspace Loan EMI Calculator',
+  title: 'CALCI - EMI Calculator',
   description:
     'A collaborative real-time Loan EMI Calculator featuring cross-tab synchronization, sensitivity analysis, prepayment planners, and interactive amortization charts.',
 };
