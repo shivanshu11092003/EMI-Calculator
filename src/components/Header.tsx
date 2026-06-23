@@ -28,26 +28,26 @@ export default function Header({
     <header className="sticky top-0 z-50 w-full border-[var(--card-border)] border-b bg-[var(--card-bg)]/85 backdrop-blur-md transition-all duration-300">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Workspace Brand / Logo */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary)] text-white shadow-[0_3px_8px_rgba(37,99,235,0.15)]">
-            <Calculator className="h-5 w-5" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--primary)] text-white shadow-[0_3px_8px_rgba(37,99,235,0.15)] sm:h-9 sm:w-9">
+            <Calculator className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h1 className="font-black text-[var(--primary)] text-sm tracking-tight">
+              <h1 className="whitespace-nowrap font-black text-[var(--primary)] text-xs tracking-tight sm:text-sm">
                 EMI Calculator
               </h1>
             </div>
-            <p className="font-medium text-[10px] text-[var(--text-muted)]">
+            <p className="hidden font-medium text-[10px] text-[var(--text-muted)] sm:block">
               Collaborative Shared Workspace
             </p>
           </div>
         </div>
 
         {/* Toolbar & Live Collaboration Status */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Active Presence Status */}
-          <div className="flex items-center gap-3 rounded-full border border-[var(--card-border)] bg-[var(--input-bg)]/40 px-3 py-1.5">
+          <div className="flex items-center gap-1.5 rounded-full border border-[var(--card-border)] bg-[var(--input-bg)]/40 px-2 py-1 sm:gap-3 sm:px-3 sm:py-1.5">
             {/* Live Indicator */}
 
             <div className="flex items-center gap-1.5">
@@ -63,7 +63,7 @@ export default function Header({
                   borderRadius: '8px',
                 }}
               >
-                <span className="pr-2 font-semibold text-[var(--text-primary)] text-xs">
+                <span className="hidden pr-2 font-semibold text-[var(--text-primary)] text-xs sm:inline">
                   {activeTabsCount === 1 ? 'Tab' : 'Tabs'}
                 </span>
               </Badge>
@@ -73,7 +73,7 @@ export default function Header({
           <div className="h-5 w-px bg-[var(--card-border)]"></div>
 
           {/* Undo/Redo & Theme Controls */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             <Tooltip title="Undo (Ctrl+Z)" mouseEnterDelay={0.5}>
               <Button
                 type="text"
