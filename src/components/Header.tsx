@@ -21,7 +21,7 @@ interface HeaderProps {
 }
 
 export default function Header({
-  tabId,
+  tabId: _tabId,
   activeTabsCount,
   theme,
   onThemeToggle,

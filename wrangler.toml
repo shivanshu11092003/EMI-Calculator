@@ -1,8 +1,0 @@
-name = "groww-assignment-web"
-compatibility_date = "2026-06-23"
-
-[assets]
-directory = "./out"
-
-[build]
-command = "npm run build"

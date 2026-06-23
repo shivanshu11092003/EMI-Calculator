@@ -10,7 +10,7 @@
 
 # Next.js build and cache outputs
 /.next/
-/out/
+/.open-next/
 /build
 
 # Testing coverage
