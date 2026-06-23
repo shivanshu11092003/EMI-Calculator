@@ -54,23 +54,6 @@ The channel communicates via the following message protocols:
 
 ---
 
-## 🔧 Recent Layout Optimizations (Alignment & Layout Shift Fixes)
-
-We resolved a major UI issue where adding prepayments caused layout shifts and alignment discrepancies between cards.
-
-### The Problem
-1. **Dynamic Heights**: The Prepayment list card dynamically grew taller as items were added (up to 3 rows), while the Add Prepayment Form card on the left remained at a fixed height. This broke the vertical alignment of the bottom borders.
-2. **Layout Shifting**: The content below the cards (the Amortization Schedule) was pushed down whenever rows were added, causing a layout shift.
-3. **Height Mismatches**: On the desktop dashboard view, the **Loan Details (InputPanel)** card was taller or shorter than the cards in the **Prepayment Planner**, leading to uneven columns.
-
-### The Fix
-1. **Dynamic Row Stretches**: Configured the grid containers to stretch columns to matching heights (`items-stretch` default).
-2. **Card Heights Integration**: Added the `h-full flex flex-col` classes to [InputPanel](file:///home/phenom/Projects/groww-assignment-web/src/components/InputPanel.tsx) and the cards inside [PrepaymentPlanner](file:///home/phenom/Projects/groww-assignment-web/src/components/PrepaymentPlanner.tsx).
-3. **Stable Min-Height Bounds**: Set `min-h-[260px]` on the Prepayment cards. This is tall enough to fit up to 3 prepayment rows + pagination without scrolling, and prevents any height shifts.
-4. **Aligned Bottom Edges**: By wrapping the columns in flexboxes that fill their parent heights, the bottom edges of the **Loan Details** card, **Add Prepayment** card, and **Scheduled Prepayments** table now align on the exact same pixel line.
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
