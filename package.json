@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "opennextjs-cloudflare build",
+    "build": "next build",
+    "build:cf": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "biome lint .",
     "format": "biome format .",
     "prepare": "husky install",
     "postinstall": "node scripts/wrap-wrangler.js",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+    "deploy": "opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
