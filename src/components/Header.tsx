@@ -69,7 +69,8 @@ export default function Header({
                 shape="circle"
                 disabled={!canUndo}
                 onClick={onUndo}
-                className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:hover:bg-transparent"
+                style={{color: canUndo ? 'var(--text-secondary)' : undefined}}
+                className="flex items-center justify-center hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:hover:bg-transparent"
                 icon={<UndoOutlined style={{fontSize: '12px'}} />}
                 size="small"
               />
@@ -82,7 +83,8 @@ export default function Header({
                 shape="circle"
                 disabled={!canRedo}
                 onClick={onRedo}
-                className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:hover:bg-transparent"
+                style={{color: canRedo ? 'var(--text-secondary)' : undefined}}
+                className="flex items-center justify-center hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:hover:bg-transparent"
                 icon={<RedoOutlined style={{fontSize: '12px'}} />}
                 size="small"
               />

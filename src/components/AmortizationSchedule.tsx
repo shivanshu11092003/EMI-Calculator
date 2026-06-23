@@ -6,7 +6,7 @@ import {
   TableOutlined,
 } from '@ant-design/icons';
 import type {TableProps} from 'antd';
-import {Button, Segmented, Table} from 'antd';
+import {Segmented, Table} from 'antd';
 import dayjs from 'dayjs';
 import {useState} from 'react';
 import {
@@ -144,14 +144,14 @@ export default function AmortizationSchedule({
             size="middle"
           />
 
-          <Button
-            type="default"
-            icon={<DownloadOutlined />}
+          <button
+            type="button"
             onClick={handleDownload}
-            size="middle"
+            className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-1.5 font-semibold text-[var(--text-secondary)] text-xs shadow-xs transition-all duration-200 hover:border-[var(--primary)] hover:bg-[var(--input-bg)]/40 hover:text-[var(--text-primary)] focus:outline-hidden"
           >
-            Export CSV
-          </Button>
+            <DownloadOutlined style={{fontSize: '12px'}} />
+            <span>Export CSV</span>
+          </button>
         </div>
       </CardHeader>
       <CardContent className="pt-5">

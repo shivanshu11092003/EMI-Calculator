@@ -29,6 +29,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head></head>
       <body className="flex min-h-full flex-col">
         <AntdRegistry>{children}</AntdRegistry>
       </body>

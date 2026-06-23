@@ -61,11 +61,48 @@ interface SharedStateContainer {
   future: AppState[];
 }
 
+function generateUUID(): string {
+  if (
+    typeof window !== 'undefined' &&
+    window.crypto &&
+    window.crypto.randomUUID
+  ) {
+    return window.crypto.randomUUID();
+  }
+  return (
+    'ws-' +
+    Math.random().toString(36).substring(2, 15) +
+    '-' +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
+
+function decodeState(base64: string): AppState | null {
+  try {
+    const jsonStr = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join(''),
+    );
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    console.error('Failed to decode shared state', e);
+    return null;
+  }
+}
+
 export function useSharedState() {
   const [tabId] = useState(() => {
     if (typeof window === 'undefined') return 'Tab-INIT';
     return `Tab-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
   });
+
+  const [workspaceId, setWorkspaceId] = useState<string>('');
+  const workspaceIdRef = useRef('');
+  useEffect(() => {
+    workspaceIdRef.current = workspaceId;
+  }, [workspaceId]);
 
   const [container, setContainer] = useState<SharedStateContainer>({
     state: DEFAULTS,
@@ -128,45 +165,6 @@ export function useSharedState() {
     }
   }, []);
 
-  const updateUrlParams = useCallback(
-    (inputs: {
-      loanAmount: number;
-      interestRate: number;
-      tenure: number;
-      startDate: string;
-    }) => {
-      if (typeof window === 'undefined') return;
-      const url = new URL(window.location.href);
-
-      if (inputs.loanAmount !== DEFAULTS.singleInputs.loanAmount) {
-        url.searchParams.set('amount', inputs.loanAmount.toString());
-      } else {
-        url.searchParams.delete('amount');
-      }
-
-      if (inputs.interestRate !== DEFAULTS.singleInputs.interestRate) {
-        url.searchParams.set('rate', inputs.interestRate.toString());
-      } else {
-        url.searchParams.delete('rate');
-      }
-
-      if (inputs.tenure !== DEFAULTS.singleInputs.tenure) {
-        url.searchParams.set('tenure', inputs.tenure.toString());
-      } else {
-        url.searchParams.delete('tenure');
-      }
-
-      if (inputs.startDate !== DEFAULTS.singleInputs.startDate) {
-        url.searchParams.set('start', inputs.startDate);
-      } else {
-        url.searchParams.delete('start');
-      }
-
-      window.history.replaceState({}, '', url.toString());
-    },
-    [],
-  );
-
   const getInitialStateFromUrl = useCallback((): Partial<AppState> | null => {
     if (typeof window === 'undefined') return null;
     const params = new URLSearchParams(window.location.search);
@@ -206,24 +204,32 @@ export function useSharedState() {
     return null;
   }, []);
 
-  // Run Side Effects (Broadcasting, Theme, URL Parameters) on State Change in useEffect!
+  // Run Side Effects (Broadcasting, Theme, LocalStorage Save) on State Change in useEffect!
   useEffect(() => {
     const currentState = container.state;
 
     // Apply document theme immediately
     applyTheme(currentState.theme);
 
-    // Debounce URL updates and broadcasting by 100ms to avoid UI lag on drags
+    // Debounce LocalStorage saving and broadcasting by 100ms to avoid UI lag on drags
     const timer = setTimeout(() => {
-      // Sync URL queries if in single mode
-      if (currentState.mode === 'single') {
-        updateUrlParams(currentState.singleInputs);
+      // Save state to LocalStorage
+      if (workspaceIdRef.current) {
+        try {
+          localStorage.setItem(
+            `emi_config_${workspaceIdRef.current}`,
+            JSON.stringify(currentState),
+          );
+        } catch (e) {
+          console.error('Failed to save state to localStorage', e);
+        }
       }
 
       // Broadcast state updates if they originated locally
-      if (isLocalUpdateRef.current && bcRef.current) {
+      if (isLocalUpdateRef.current && bcRef.current && workspaceIdRef.current) {
         bcRef.current.postMessage({
           type: isUndoRedoRef.current ? 'undo_redo' : 'state_change',
+          workspaceId: workspaceIdRef.current,
           state: currentState,
           past: container.past,
           future: container.future,
@@ -238,14 +244,8 @@ export function useSharedState() {
     return () => {
       clearTimeout(timer);
     };
-  }, [
-    container.state,
-    container.past,
-    updateUrlParams,
-    tabId, // Apply document theme immediately
-    applyTheme,
-    container.future,
-  ]);
+  }, [container.state, container.past, tabId, applyTheme, container.future]);
+
   const updateState = (
     updater: Partial<AppState> | ((prev: AppState) => AppState),
   ) => {
@@ -365,8 +365,97 @@ export function useSharedState() {
     });
   }, []);
 
+  const generateShareUrl = useCallback(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const stateStr = JSON.stringify(container.state);
+      const base64 = btoa(
+        encodeURIComponent(stateStr).replace(
+          /%([0-9A-F]{2})/g,
+          (_match, p1) => {
+            return String.fromCharCode(parseInt(p1, 16));
+          },
+        ),
+      );
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('share', base64);
+      return url.toString();
+    } catch (e) {
+      console.error('Error generating share URL', e);
+      return '';
+    }
+  }, [container.state]);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const shareParam = params.get('share');
+    const idParam = params.get('id');
+
+    let activeId = idParam || '';
+    let loadedState: AppState | null = null;
+
+    if (shareParam) {
+      const decoded = decodeState(shareParam);
+      if (decoded) {
+        loadedState = decoded;
+        activeId = generateUUID();
+        try {
+          localStorage.setItem(
+            `emi_config_${activeId}`,
+            JSON.stringify(decoded),
+          );
+        } catch (e) {
+          console.error('Failed to save shared state to localStorage', e);
+        }
+      }
+    } else if (idParam) {
+      try {
+        const item = localStorage.getItem(`emi_config_${idParam}`);
+        if (item) {
+          loadedState = JSON.parse(item);
+        }
+      } catch (e) {
+        console.error('Failed to load state from localStorage', e);
+      }
+    } else {
+      // Check if we can parse the legacy query params first!
+      const legacyInit = getInitialStateFromUrl();
+      if (legacyInit) {
+        loadedState = {...DEFAULTS, ...legacyInit} as AppState;
+      }
+      activeId = generateUUID();
+      try {
+        localStorage.setItem(
+          `emi_config_${activeId}`,
+          JSON.stringify(loadedState || DEFAULTS),
+        );
+      } catch (e) {
+        console.error('Failed to save initial state to localStorage', e);
+      }
+    }
+
+    if (!activeId) {
+      activeId = generateUUID();
+    }
+
+    setWorkspaceId(activeId);
+
+    // Rewrite URL to have clean ?id=<activeId>
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.searchParams.set('id', activeId);
+    window.history.replaceState({}, '', url.toString());
+
+    if (loadedState) {
+      setContainer({
+        state: loadedState,
+        past: [],
+        future: [],
+      });
+    }
 
     const bc = new BroadcastChannel('groww_emi_sync_channel');
     bcRef.current = bc;
@@ -374,6 +463,7 @@ export function useSharedState() {
     // Join channel
     bc.postMessage({
       type: 'join',
+      workspaceId: activeId,
       sender: tabIdRef.current,
       createdAt: createdAtRef.current,
     });
@@ -381,15 +471,19 @@ export function useSharedState() {
     bc.onmessage = (event) => {
       const {
         type,
-        state,
-        past,
-        future,
+        state: msgState,
+        past: msgPast,
+        future: msgFuture,
         sender,
         tabId: msgTabId,
         createdAt: msgCreatedAt,
+        workspaceId: msgWorkspaceId,
       } = event.data;
-      const activeSender = sender || msgTabId;
 
+      // Filter out messages belonging to other workspaces!
+      if (msgWorkspaceId !== activeId) return;
+
+      const activeSender = sender || msgTabId;
       if (activeSender === tabIdRef.current) return;
 
       const fallbackCreatedAt = msgCreatedAt || Date.now();
@@ -398,6 +492,7 @@ export function useSharedState() {
         case 'join':
           bc.postMessage({
             type: 'pong',
+            workspaceId: activeId,
             tabId: tabIdRef.current,
             createdAt: createdAtRef.current,
           });
@@ -425,6 +520,7 @@ export function useSharedState() {
           if (isLeaderRef.current) {
             bc.postMessage({
               type: 'respond_state',
+              workspaceId: activeId,
               state: containerRef.current.state,
               past: containerRef.current.past,
               future: containerRef.current.future,
@@ -439,10 +535,19 @@ export function useSharedState() {
         case 'undo_redo':
           isLocalUpdateRef.current = false; // Block broadcasting this update
           setContainer({
-            state,
-            past: past || [],
-            future: future || [],
+            state: msgState,
+            past: msgPast || [],
+            future: msgFuture || [],
           });
+          // Also save the synchronized state to LocalStorage!
+          try {
+            localStorage.setItem(
+              `emi_config_${activeId}`,
+              JSON.stringify(msgState),
+            );
+          } catch (e) {
+            console.error('Failed to sync received state to localStorage', e);
+          }
           break;
 
         default:
@@ -450,22 +555,20 @@ export function useSharedState() {
       }
     };
 
-    // Load initial state from URL parameters or Leader tab
-    const urlInit = getInitialStateFromUrl();
-    if (urlInit) {
-      isLocalUpdateRef.current = true;
-      setContainer((prev) => {
-        const nextState = {...prev.state, ...urlInit};
-        return {state: nextState, past: [], future: []};
+    // If we did not find the state in localStorage, we request the state.
+    if (!loadedState) {
+      bc.postMessage({
+        type: 'request_state',
+        workspaceId: activeId,
+        sender: tabIdRef.current,
       });
-    } else {
-      bc.postMessage({type: 'request_state', sender: tabIdRef.current});
     }
 
     // Heartbeat: 1.5s
     const heartbeatInterval = setInterval(() => {
       bc.postMessage({
         type: 'heartbeat',
+        workspaceId: activeId,
         sender: tabIdRef.current,
         createdAt: createdAtRef.current,
       });
@@ -526,6 +629,7 @@ export function useSharedState() {
   return {
     tabId,
     tabNumber,
+    workspaceId,
     state: container.state,
     past: container.past,
     future: container.future,
@@ -534,5 +638,6 @@ export function useSharedState() {
     activeTabsCount,
     undo: triggerUndo,
     redo: triggerRedo,
+    generateShareUrl,
   };
 }

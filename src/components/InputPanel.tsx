@@ -1,6 +1,6 @@
 'use client';
 
-import {DatePicker, InputNumber, Slider} from 'antd';
+import {App, DatePicker, InputNumber, Slider} from 'antd';
 import dayjs from 'dayjs';
 import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
 
@@ -26,6 +26,8 @@ export default function InputPanel({
   onChange,
   className,
 }: InputPanelProps) {
+  const {message} = App.useApp();
+
   return (
     <Card className={className}>
       <CardHeader>
@@ -37,20 +39,40 @@ export default function InputPanel({
           <div className="flex items-center justify-between font-semibold text-[var(--text-secondary)] text-xs">
             <span>Principal (P)</span>
             <InputNumber<number>
-              min={10000}
+              min={0}
               max={5000000}
               step={5000}
               value={loanAmount}
               onChange={(val) => {
-                if (val !== null && val !== loanAmount)
-                  onChange({loanAmount: val});
+                const nextVal = val ?? 0;
+                if (nextVal !== loanAmount) {
+                  onChange({loanAmount: nextVal});
+                }
+              }}
+              onBlur={() => {
+                if (loanAmount < 10000) {
+                  message.warning('Principal amount must be at least ₹10,000.');
+                  onChange({loanAmount: 10000});
+                } else if (loanAmount > 5000000) {
+                  message.warning('Principal amount cannot exceed ₹5,000,000.');
+                  onChange({loanAmount: 5000000});
+                }
+              }}
+              onPressEnter={() => {
+                if (loanAmount < 10000) {
+                  message.warning('Principal amount must be at least ₹10,000.');
+                  onChange({loanAmount: 10000});
+                } else if (loanAmount > 5000000) {
+                  message.warning('Principal amount cannot exceed ₹5,000,000.');
+                  onChange({loanAmount: 5000000});
+                }
               }}
               prefix="₹"
               formatter={(value) =>
                 `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
               }
               parser={(value) =>
-                value ? parseFloat(value.replace(/(,*)/g, '')) : 10000
+                value ? parseFloat(value.replace(/(,*)/g, '')) : 0
               }
               style={{width: 130}}
               size="small"
@@ -60,7 +82,7 @@ export default function InputPanel({
             min={0}
             max={998}
             step={1}
-            value={Math.round((loanAmount - 10000) / 5000)}
+            value={Math.max(0, Math.round((loanAmount - 10000) / 5000))}
             onChange={(val) => {
               const amount = 10000 + val * 5000;
               if (amount !== loanAmount) {
@@ -89,13 +111,33 @@ export default function InputPanel({
           <div className="flex items-center justify-between font-semibold text-[var(--text-secondary)] text-xs">
             <span>Interest Rate (%)</span>
             <InputNumber<number>
-              min={1}
+              min={0}
               max={36}
               step={0.1}
               value={interestRate}
               onChange={(val) => {
-                if (val !== null && val !== interestRate)
-                  onChange({interestRate: val});
+                const nextVal = val ?? 0;
+                if (nextVal !== interestRate) {
+                  onChange({interestRate: nextVal});
+                }
+              }}
+              onBlur={() => {
+                if (interestRate < 1) {
+                  message.warning('Interest rate must be at least 1%.');
+                  onChange({interestRate: 1});
+                } else if (interestRate > 36) {
+                  message.warning('Interest rate cannot exceed 36%.');
+                  onChange({interestRate: 36});
+                }
+              }}
+              onPressEnter={() => {
+                if (interestRate < 1) {
+                  message.warning('Interest rate must be at least 1%.');
+                  onChange({interestRate: 1});
+                } else if (interestRate > 36) {
+                  message.warning('Interest rate cannot exceed 36%.');
+                  onChange({interestRate: 36});
+                }
               }}
               suffix="%"
               style={{width: 80}}
@@ -106,7 +148,7 @@ export default function InputPanel({
             min={0}
             max={700}
             step={1}
-            value={Math.round((interestRate - 1) / 0.05)}
+            value={Math.max(0, Math.round((interestRate - 1) / 0.05))}
             onChange={(val) => {
               const rate = parseFloat((1 + val * 0.05).toFixed(2));
               if (rate !== interestRate) {
@@ -131,12 +173,33 @@ export default function InputPanel({
           <div className="flex items-center justify-between font-bold text-[var(--text-secondary)] text-xs">
             <span>Tenure (Months)</span>
             <InputNumber<number>
-              min={1}
+              min={0}
               max={84}
               step={1}
               value={tenure}
               onChange={(val) => {
-                if (val !== null && val !== tenure) onChange({tenure: val});
+                const nextVal = val ?? 0;
+                if (nextVal !== tenure) {
+                  onChange({tenure: nextVal});
+                }
+              }}
+              onBlur={() => {
+                if (tenure < 1) {
+                  message.warning('Tenure must be at least 1 month.');
+                  onChange({tenure: 1});
+                } else if (tenure > 84) {
+                  message.warning('Tenure cannot exceed 84 months.');
+                  onChange({tenure: 84});
+                }
+              }}
+              onPressEnter={() => {
+                if (tenure < 1) {
+                  message.warning('Tenure must be at least 1 month.');
+                  onChange({tenure: 1});
+                } else if (tenure > 84) {
+                  message.warning('Tenure cannot exceed 84 months.');
+                  onChange({tenure: 84});
+                }
               }}
               suffix="mo"
               style={{width: 80}}
@@ -147,7 +210,7 @@ export default function InputPanel({
             min={0}
             max={83}
             step={1}
-            value={Math.round(tenure - 1)}
+            value={Math.max(0, Math.round(tenure - 1))}
             onChange={(val) => {
               const months = 1 + val;
               if (months !== tenure) {
