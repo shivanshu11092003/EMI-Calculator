@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "biome lint .",
     "format": "biome format .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "pages:deploy": "npm run pages:build && wrangler pages deploy .vercel/output",
+    "pages:dev": "wrangler pages dev .vercel/output --compatibility-flag=nodejs_compat",
+    "pages:watch": "npx @cloudflare/next-on-pages --watch"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
@@ -23,6 +27,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.0",
+    "@cloudflare/next-on-pages": "^1.13.16",
+    "@cloudflare/workers-types": "^4.20260623.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -31,6 +37,7 @@
     "eslint-config-next": "16.2.9",
     "husky": "^9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.103.0"
   }
 }
