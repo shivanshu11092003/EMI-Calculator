@@ -164,11 +164,12 @@ export default function PrepaymentPlanner({
               >
                 <InputNumber<number>
                   min={1}
+                  prefix="₹"
                   formatter={(value) =>
-                    `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }
                   parser={(value) =>
-                    value ? parseFloat(value.replace(/₹\s?|(,*)/g, '')) : 0
+                    value ? parseFloat(value.replace(/(,*)/g, '')) : 0
                   }
                   style={{width: '100%'}}
                   placeholder="e.g. 100000"

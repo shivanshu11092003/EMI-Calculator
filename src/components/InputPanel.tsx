@@ -45,11 +45,12 @@ export default function InputPanel({
                 if (val !== null && val !== loanAmount)
                   onChange({loanAmount: val});
               }}
+              prefix="₹"
               formatter={(value) =>
-                `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
               }
               parser={(value) =>
-                value ? parseFloat(value.replace(/₹\s?|(,*)/g, '')) : 10000
+                value ? parseFloat(value.replace(/(,*)/g, '')) : 10000
               }
               style={{width: 130}}
               size="small"
@@ -91,10 +92,7 @@ export default function InputPanel({
                 if (val !== null && val !== interestRate)
                   onChange({interestRate: val});
               }}
-              formatter={(value) => `${value}%`}
-              parser={(value) =>
-                value ? parseFloat(value.replace('%', '')) : 1
-              }
+              suffix="%"
               style={{width: 80}}
               size="small"
             />
@@ -127,10 +125,7 @@ export default function InputPanel({
               onChange={(val) => {
                 if (val !== null && val !== tenure) onChange({tenure: val});
               }}
-              formatter={(value) => `${value} mo`}
-              parser={(value) =>
-                value ? parseInt(value.replace(' mo', ''), 10) : 1
-              }
+              suffix="mo"
               style={{width: 80}}
               size="small"
             />

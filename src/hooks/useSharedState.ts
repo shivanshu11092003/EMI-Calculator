@@ -176,19 +176,31 @@ export function useSharedState() {
     const start = params.get('start');
 
     if (amount || rate || tenure || start) {
+      const parsedAmount = amount
+        ? Math.max(10000, Math.min(5000000, Number(amount)))
+        : DEFAULTS.singleInputs.loanAmount;
+
+      const parsedRate = rate
+        ? Math.max(1, Math.min(36, Number(rate)))
+        : DEFAULTS.singleInputs.interestRate;
+
+      const parsedTenure = tenure
+        ? Math.max(1, Math.min(84, Number(tenure)))
+        : DEFAULTS.singleInputs.tenure;
+
       return {
         singleInputs: {
-          loanAmount: amount
-            ? Math.max(10000, Math.min(5000000, Number(amount)))
-            : DEFAULTS.singleInputs.loanAmount,
-          interestRate: rate
-            ? Math.max(1, Math.min(36, Number(rate)))
-            : DEFAULTS.singleInputs.interestRate,
-          tenure: tenure
-            ? Math.max(1, Math.min(84, Number(tenure)))
-            : DEFAULTS.singleInputs.tenure,
+          loanAmount: parsedAmount,
+          interestRate: parsedRate,
+          tenure: parsedTenure,
           startDate: start || DEFAULTS.singleInputs.startDate,
         },
+        scenarios: DEFAULTS.scenarios.map((sc, idx) => ({
+          ...sc,
+          loanAmount: parsedAmount,
+          interestRate: parsedRate,
+          tenure: idx === 0 ? parsedTenure : sc.tenure,
+        })),
       };
     }
     return null;
@@ -238,13 +250,67 @@ export function useSharedState() {
     updater: Partial<AppState> | ((prev: AppState) => AppState),
   ) => {
     setContainer((prevContainer) => {
-      const nextState =
+      let nextState =
         typeof updater === 'function'
           ? updater(prevContainer.state)
           : {...prevContainer.state, ...updater};
 
       if (JSON.stringify(nextState) === JSON.stringify(prevContainer.state)) {
         return prevContainer;
+      }
+
+      // Automatically sync scenarios' loanAmount and interestRate if they change
+      let scenariosChanged = false;
+      const nextScenarios = nextState.scenarios.map((sc, idx) => {
+        let updated = false;
+        let scAmount = sc.loanAmount;
+        let scRate = sc.interestRate;
+        let scTenure = sc.tenure;
+
+        if (
+          nextState.singleInputs.loanAmount !==
+          prevContainer.state.singleInputs.loanAmount
+        ) {
+          scAmount = nextState.singleInputs.loanAmount;
+          updated = true;
+        }
+
+        if (
+          nextState.singleInputs.interestRate !==
+          prevContainer.state.singleInputs.interestRate
+        ) {
+          scRate = nextState.singleInputs.interestRate;
+          updated = true;
+        }
+
+        if (
+          nextState.singleInputs.tenure !==
+          prevContainer.state.singleInputs.tenure
+        ) {
+          // Sync tenure of Scenario A (first scenario) with the main tenure
+          if (idx === 0) {
+            scTenure = nextState.singleInputs.tenure;
+            updated = true;
+          }
+        }
+
+        if (updated) {
+          scenariosChanged = true;
+          return {
+            ...sc,
+            loanAmount: scAmount,
+            interestRate: scRate,
+            tenure: scTenure,
+          };
+        }
+        return sc;
+      });
+
+      if (scenariosChanged) {
+        nextState = {
+          ...nextState,
+          scenarios: nextScenarios,
+        };
       }
 
       isLocalUpdateRef.current = true;
