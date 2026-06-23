@@ -129,10 +129,8 @@ export default function AmortizationSchedule({
   return (
     <Card>
       {/* Header and Actions */}
-      <CardHeader className="flex flex-col items-start justify-between gap-4 border-[var(--card-border)] border-b pb-4 sm:flex-row sm:items-center">
-        <CardTitle className="border-none pb-0">
-          Amortization Schedule
-        </CardTitle>
+      <CardHeader className="flex flex-col items-start justify-between gap-4 pb-2 sm:flex-row sm:items-center">
+        <CardTitle>Amortization Schedule</CardTitle>
 
         {/* Action Controls */}
         <div className="flex w-full items-center justify-between gap-2.5 sm:w-auto sm:justify-end">

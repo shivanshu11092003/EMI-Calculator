@@ -69,7 +69,7 @@ export default function SensitivityTable({
                   <td
                     className={`border-[var(--card-border)] border-r px-2.5 py-3 text-left text-[var(--text-primary)] ${
                       tenure === currentTenure
-                        ? 'bg-[var(--primary)]/5 font-extrabold text-[var(--primary)]'
+                        ? 'bg-[var(--primary)]/5 font-medium text-[var(--primary)]'
                         : ''
                     }`}
                   >
@@ -85,7 +85,7 @@ export default function SensitivityTable({
                         key={rate}
                         className={`px-2.5 py-3 font-mono text-xs ${
                           isCenter
-                            ? 'rounded-md bg-[var(--primary)] font-extrabold text-white shadow-sm'
+                            ? 'rounded-md bg-[var(--primary)] font-medium text-white shadow-sm'
                             : rate === currentRate || tenure === currentTenure
                               ? 'bg-[var(--primary)]/5 text-[var(--text-primary)]'
                               : 'text-[var(--text-secondary)]'

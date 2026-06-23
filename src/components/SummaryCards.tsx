@@ -68,11 +68,11 @@ export default function SummaryCards({
         {/* Monthly EMI */}
         <Popover content={emiFormulaContent} title={null} trigger="hover">
           <Card className="flex cursor-help flex-col gap-1 p-4.5 transition-all hover:border-[var(--primary)]">
-            <span className="flex items-center gap-1 font-bold text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+            <span className="flex items-center gap-1 font-semibold text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">
               Monthly EMI{' '}
               <CalculatorOutlined className="text-[var(--primary)]" />
             </span>
-            <span className="font-extrabold font-mono text-[var(--primary)] text-xl sm:text-2xl">
+            <span className="font-medium font-mono text-[var(--primary)] text-xl sm:text-2xl">
               {formatCurrency(monthlyEMI)}
             </span>
           </Card>
@@ -84,11 +84,11 @@ export default function SummaryCards({
           trigger="hover"
         >
           <Card className="flex cursor-help flex-col gap-1 p-4.5 transition-all hover:border-[var(--interest-color)]">
-            <span className="flex items-center gap-1 font-bold text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+            <span className="flex items-center gap-1 font-semibold text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">
               Interest Payable{' '}
               <InfoCircleOutlined className="text-[var(--interest-color)]" />
             </span>
-            <span className="font-extrabold font-mono text-[var(--interest-color)] text-xl sm:text-2xl">
+            <span className="font-medium font-mono text-[var(--interest-color)] text-xl sm:text-2xl">
               {formatCurrency(totalInterest)}
             </span>
           </Card>
@@ -100,11 +100,11 @@ export default function SummaryCards({
           trigger="hover"
         >
           <Card className="flex cursor-help flex-col gap-1 p-4.5 transition-all hover:border-[var(--text-primary)]">
-            <span className="flex items-center gap-1 font-bold text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+            <span className="flex items-center gap-1 font-semibold text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">
               Total Payable{' '}
               <InfoCircleOutlined className="text-[var(--text-muted)]" />
             </span>
-            <span className="font-extrabold font-mono text-[var(--text-primary)] text-xl sm:text-2xl">
+            <span className="font-medium font-mono text-[var(--text-primary)] text-xl sm:text-2xl">
               {formatCurrency(totalAmountPayable)}
             </span>
           </Card>
@@ -116,11 +116,10 @@ export default function SummaryCards({
         <CardContent className="p-4.5">
           <Descriptions
             title={
-              <span className="font-bold text-[var(--text-secondary)] text-xs uppercase tracking-wider">
+              <span className="block pt-3 font-semibold text-[var(--text-secondary)] text-xs uppercase tracking-wider">
                 Loan Overview
               </span>
             }
-            bordered
             column={{xxl: 3, xl: 3, lg: 3, md: 3, sm: 2, xs: 1}}
             size="small"
           >
@@ -165,14 +164,14 @@ export default function SummaryCards({
 
       {/* Split Bar Visualization */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="border-none pb-0 font-bold text-[var(--text-primary)] text-xs normal-case tracking-normal">
+        <CardHeader className="pb-2">
+          <CardTitle className="font-semibold text-[var(--text-primary)] text-sm">
             Payment Breakdown
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3.5 pt-0">
           {/* Stacked Progress Bar */}
-          <div className="flex h-3 w-full overflow-hidden rounded-full bg-[var(--input-bg)]">
+          <div className="flex h-2 w-full overflow-hidden rounded-full bg-[var(--input-bg)]">
             <div
               style={{width: `${principalPercent}%`}}
               className="h-full bg-[var(--principal-color)] transition-all duration-300"
@@ -186,7 +185,7 @@ export default function SummaryCards({
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-between gap-4 font-bold text-[10px]">
+          <div className="flex items-center justify-between gap-4 font-semibold text-[10px]">
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-sm bg-[var(--principal-color)]"></span>
               <span className="text-[var(--text-secondary)]">Principal:</span>

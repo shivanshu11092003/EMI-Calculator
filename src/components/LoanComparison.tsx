@@ -1,7 +1,7 @@
 'use client';
 
 import {CheckOutlined} from '@ant-design/icons';
-import {Badge, Button, Slider} from 'antd';
+import {Button, Slider} from 'antd';
 import {calculateEMI} from '../utils/formulas';
 import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
 
@@ -56,8 +56,8 @@ export default function LoanComparison({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="border-[var(--card-border)] border-b pb-2.5">
-        <h2 className="font-bold text-[var(--text-primary)] text-sm">
+      <div className="border-[var(--card-border)] border-b pb-3">
+        <h2 className="font-semibold text-[var(--text-primary)] text-sm tracking-tight">
           Compare Scenarios
         </h2>
       </div>
@@ -67,16 +67,16 @@ export default function LoanComparison({
           const isBest = index === bestIndex;
 
           const cardContent = (
-            <Card
-              className="flex flex-col"
-              style={{
-                borderColor: isBest ? 'var(--primary)' : 'var(--card-border)',
-              }}
-            >
-              <CardHeader>
-                <CardTitle className="m-0 border-b-0 pb-0">
-                  {res.name}
-                </CardTitle>
+            <Card className="flex flex-col">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="m-0">{res.name}</CardTitle>
+                  {isBest && (
+                    <span className="shrink-0 rounded bg-emerald-500/10 px-2.5 py-0.5 font-bold text-[9px] text-emerald-500 uppercase tracking-wider">
+                      Best Deal
+                    </span>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 {/* Sliders */}
@@ -90,16 +90,22 @@ export default function LoanComparison({
                       </span>
                     </div>
                     <Slider
-                      min={10000}
-                      max={5000000}
-                      step={10000}
-                      value={res.loanAmount}
+                      min={0}
+                      max={499}
+                      step={1}
+                      value={Math.round((res.loanAmount - 10000) / 10000)}
                       onChange={(val) => {
-                        if (val !== res.loanAmount) {
-                          onScenarioChange(res.id, {loanAmount: val});
+                        const amount = 10000 + val * 10000;
+                        if (amount !== res.loanAmount) {
+                          onScenarioChange(res.id, {loanAmount: amount});
                         }
                       }}
-                      tooltip={{formatter: (val) => formatCurrency(val || 0)}}
+                      tooltip={{
+                        formatter: (val) => {
+                          const amount = 10000 + (val || 0) * 10000;
+                          return formatCurrency(amount);
+                        },
+                      }}
                     />
                   </div>
 
@@ -112,16 +118,22 @@ export default function LoanComparison({
                       </span>
                     </div>
                     <Slider
-                      min={1}
-                      max={36}
-                      step={0.1}
-                      value={res.interestRate}
+                      min={0}
+                      max={350}
+                      step={1}
+                      value={Math.round((res.interestRate - 1) / 0.1)}
                       onChange={(val) => {
-                        if (val !== res.interestRate) {
-                          onScenarioChange(res.id, {interestRate: val});
+                        const rate = parseFloat((1 + val * 0.1).toFixed(1));
+                        if (rate !== res.interestRate) {
+                          onScenarioChange(res.id, {interestRate: rate});
                         }
                       }}
-                      tooltip={{formatter: (val) => `${val}% p.a.`}}
+                      tooltip={{
+                        formatter: (val) => {
+                          const rate = 1 + (val || 0) * 0.1;
+                          return `${Number(rate.toFixed(1))}% p.a.`;
+                        },
+                      }}
                     />
                   </div>
 
@@ -134,39 +146,57 @@ export default function LoanComparison({
                       </span>
                     </div>
                     <Slider
-                      min={1}
-                      max={84}
+                      min={0}
+                      max={83}
                       step={1}
-                      value={res.tenure}
+                      value={Math.round(res.tenure - 1)}
                       onChange={(val) => {
-                        if (val !== res.tenure) {
-                          onScenarioChange(res.id, {tenure: val});
+                        const tenure = 1 + val;
+                        if (tenure !== res.tenure) {
+                          onScenarioChange(res.id, {tenure: tenure});
                         }
                       }}
-                      tooltip={{formatter: (val) => `${val} mo`}}
+                      tooltip={{
+                        formatter: (val) => {
+                          const tenure = 1 + (val || 0);
+                          return `${tenure} mo`;
+                        },
+                      }}
                     />
                   </div>
                 </div>
 
                 {/* Calculated Outputs */}
-                <div className="mt-4 flex flex-col gap-2 rounded-lg bg-[var(--input-bg)] p-3">
-                  <div className="flex items-center justify-between font-bold text-xs">
-                    <span className="text-[var(--text-secondary)]">EMI</span>
-                    <span className="font-mono text-[var(--text-primary)]">
+                <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-[var(--card-border)]/60 bg-[var(--input-bg)]/40 p-4 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] transition-all duration-300 dark:shadow-none">
+                  {/* EMI */}
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">
+                      EMI
+                    </span>
+                    <span className="font-bold font-mono text-[var(--text-primary)] text-sm">
                       {formatCurrency(res.emi)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between font-bold text-xs">
-                    <span className="text-[var(--text-secondary)]">
+
+                  {/* Interest */}
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">
                       Interest
                     </span>
-                    <span className="text font-mono text-[var(--interest-color)]">
+                    <span className="font-mono font-semibold text-[var(--interest-color)] text-xs">
                       {formatCurrency(res.totalInterest)}
                     </span>
                   </div>
-                  <div className="mt-0.5 flex items-center justify-between border-[var(--card-border)] border-t pt-2 font-bold text-xs">
-                    <span className="text-[var(--text-primary)]">Total</span>
-                    <span className="font-extrabold font-mono text-[var(--text-primary)] text-xs">
+
+                  {/* Divider */}
+                  <div className="my-0.5 border-[var(--card-border)]/80 border-t border-dashed" />
+
+                  {/* Total */}
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[10px] text-[var(--text-primary)] uppercase tracking-wider">
+                      Total Payable
+                    </span>
+                    <span className="font-black font-mono text-[var(--text-primary)] text-sm">
                       {formatCurrency(res.totalPayable)}
                     </span>
                   </div>
@@ -185,14 +215,6 @@ export default function LoanComparison({
               </CardContent>
             </Card>
           );
-
-          if (isBest) {
-            return (
-              <Badge.Ribbon key={res.id} text="Best Deal" color="green">
-                {cardContent}
-              </Badge.Ribbon>
-            );
-          }
 
           return <div key={res.id}>{cardContent}</div>;
         })}

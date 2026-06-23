@@ -34,7 +34,7 @@ export default function InputPanel({
       <CardContent className="flex flex-col gap-5">
         {/* Loan Amount */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between font-bold text-[var(--text-secondary)] text-xs">
+          <div className="flex items-center justify-between font-semibold text-[var(--text-secondary)] text-xs">
             <span>Principal (P)</span>
             <InputNumber<number>
               min={10000}
@@ -57,23 +57,28 @@ export default function InputPanel({
             />
           </div>
           <Slider
-            min={10000}
-            max={5000000}
-            step={5000}
-            value={loanAmount}
+            min={0}
+            max={998}
+            step={1}
+            value={Math.round((loanAmount - 10000) / 5000)}
             onChange={(val) => {
-              if (val !== loanAmount) onChange({loanAmount: val});
+              const amount = 10000 + val * 5000;
+              if (amount !== loanAmount) {
+                onChange({loanAmount: amount});
+              }
             }}
             tooltip={{
-              formatter: (val) =>
-                new Intl.NumberFormat('en-IN', {
+              formatter: (val) => {
+                const amount = 10000 + (val || 0) * 5000;
+                return new Intl.NumberFormat('en-IN', {
                   style: 'currency',
                   currency: 'INR',
                   maximumFractionDigits: 0,
-                }).format(val || 0),
+                }).format(amount);
+              },
             }}
           />
-          <div className="flex justify-between font-bold text-[var(--text-muted)] text-xs">
+          <div className="flex justify-between font-semibold text-[var(--text-muted)] text-xs">
             <span>₹10k</span>
             <span>₹50L</span>
           </div>
@@ -81,7 +86,7 @@ export default function InputPanel({
 
         {/* Interest Rate */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between font-bold text-[var(--text-secondary)] text-xs">
+          <div className="flex items-center justify-between font-semibold text-[var(--text-secondary)] text-xs">
             <span>Interest Rate (%)</span>
             <InputNumber<number>
               min={1}
@@ -98,16 +103,24 @@ export default function InputPanel({
             />
           </div>
           <Slider
-            min={1}
-            max={36}
-            step={0.05}
-            value={interestRate}
+            min={0}
+            max={700}
+            step={1}
+            value={Math.round((interestRate - 1) / 0.05)}
             onChange={(val) => {
-              if (val !== interestRate) onChange({interestRate: val});
+              const rate = parseFloat((1 + val * 0.05).toFixed(2));
+              if (rate !== interestRate) {
+                onChange({interestRate: rate});
+              }
             }}
-            tooltip={{formatter: (val) => `${val}% p.a.`}}
+            tooltip={{
+              formatter: (val) => {
+                const rate = 1 + (val || 0) * 0.05;
+                return `${Number(rate.toFixed(2))}% p.a.`;
+              },
+            }}
           />
-          <div className="flex justify-between font-bold text-[var(--text-muted)] text-xs">
+          <div className="flex justify-between font-semibold text-[var(--text-muted)] text-xs">
             <span>1%</span>
             <span>36%</span>
           </div>
@@ -131,23 +144,26 @@ export default function InputPanel({
             />
           </div>
           <Slider
-            min={1}
-            max={84}
+            min={0}
+            max={83}
             step={1}
-            value={tenure}
+            value={Math.round(tenure - 1)}
             onChange={(val) => {
-              if (val !== tenure) onChange({tenure: val});
+              const months = 1 + val;
+              if (months !== tenure) {
+                onChange({tenure: months});
+              }
             }}
             tooltip={{
               formatter: (val) => {
-                if (!val) return '0 mo';
-                const yrs = Math.floor(val / 12);
-                const mos = val % 12;
+                const months = 1 + (val || 0);
+                const yrs = Math.floor(months / 12);
+                const mos = months % 12;
                 return `${yrs > 0 ? `${yrs}y ` : ''}${mos > 0 ? `${mos}m` : ''}`;
               },
             }}
           />
-          <div className="flex justify-between font-bold text-[var(--text-muted)] text-xs">
+          <div className="flex justify-between font-semibold text-[var(--text-muted)] text-xs">
             <span>1 month</span>
             <span>84 months (7y)</span>
           </div>
@@ -155,7 +171,7 @@ export default function InputPanel({
 
         {/* Start Month */}
         <div className="flex flex-col gap-2 border-[var(--card-border)] border-t pt-2">
-          <div className="flex items-center justify-between font-bold text-[var(--text-secondary)] text-xs">
+          <div className="flex items-center justify-between font-semibold text-[var(--text-secondary)] text-xs">
             <span>Start Month</span>
             <DatePicker
               picker="month"

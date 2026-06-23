@@ -1,6 +1,7 @@
 'use client';
 
-import {theme as antdTheme, ConfigProvider, Skeleton, Spin, Tabs} from 'antd';
+import {theme as antdTheme, ConfigProvider, Skeleton, Spin} from 'antd';
+import {Calculator, Coins, GitCompare} from 'lucide-react';
 import {useDeferredValue, useEffect, useState} from 'react';
 import AmortizationSchedule from '../components/AmortizationSchedule';
 import Header from '../components/Header';
@@ -216,9 +217,13 @@ export default function Home() {
         components: {
           Tabs: {
             itemColor: 'var(--text-secondary)',
-            itemSelectedColor: 'var(--primary)',
-            itemHoverColor: 'var(--primary)',
-            itemActiveColor: 'var(--primary)',
+            itemSelectedColor:
+              state.theme === 'dark' ? '#ffffff' : 'var(--primary)',
+            itemHoverColor:
+              state.theme === 'dark' ? '#ffffff' : 'var(--primary)',
+            itemActiveColor:
+              state.theme === 'dark' ? '#ffffff' : 'var(--primary)',
+            inkBarColor: state.theme === 'dark' ? '#ffffff' : 'var(--primary)',
           },
         },
       }}
@@ -237,20 +242,48 @@ export default function Home() {
           canRedo={future.length > 0}
         />
 
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 bg-[var(--background)] px-4 py-8 sm:px-6 lg:px-8">
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 bg-[var(--background)] px-4 pt-24 pb-8 sm:px-6 lg:px-8">
           {/* Navigation Tabs */}
-          <Tabs
-            activeKey={state.mode}
-            onChange={(key) =>
-              updateState({mode: key as 'single' | 'compare' | 'prepayment'})
-            }
-            items={[
-              {key: 'single', label: 'Calculator'},
-              {key: 'compare', label: 'Comparison'},
-              {key: 'prepayment', label: 'Prepayments'},
-            ]}
-            className="w-full border-[var(--card-border)] border-b pb-2 font-bold"
-          />
+          <div className="mb-2 flex w-fit items-center gap-1 rounded-xl border border-[var(--card-border)] bg-[var(--input-bg)]/50 p-1 shadow-xs">
+            <button
+              type="button"
+              onClick={() => updateState({mode: 'single'})}
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg border-0 px-4 py-1.5 font-semibold text-xs transition-all duration-200 ${
+                state.mode === 'single'
+                  ? 'border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] shadow-sm'
+                  : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <Calculator className="h-3.5 w-3.5" />
+              <span>Calculator</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => updateState({mode: 'compare'})}
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg border-0 px-4 py-1.5 font-semibold text-xs transition-all duration-200 ${
+                state.mode === 'compare'
+                  ? 'border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] shadow-sm'
+                  : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <GitCompare className="h-3.5 w-3.5" />
+              <span>Comparison</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => updateState({mode: 'prepayment'})}
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg border-0 px-4 py-1.5 font-semibold text-xs transition-all duration-200 ${
+                state.mode === 'prepayment'
+                  ? 'border border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)] shadow-sm'
+                  : 'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <Coins className="h-3.5 w-3.5" />
+              <span>Prepayments</span>
+            </button>
+          </div>
 
           {/* Dashboard Sections */}
           {state.mode === 'single' && (

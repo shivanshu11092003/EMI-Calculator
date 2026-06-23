@@ -90,8 +90,8 @@ export default function PrepaymentPlanner({
   return (
     <div className="flex h-full flex-col gap-6">
       {/* Title */}
-      <div className="border-[var(--card-border)] border-b pb-2.5">
-        <h2 className="font-bold text-[var(--text-primary)] text-sm">
+      <div className="border-[var(--card-border)] border-b pb-3">
+        <h2 className="font-semibold text-[var(--text-primary)] text-sm tracking-tight">
           Prepayment Planner
         </h2>
       </div>
@@ -99,30 +99,30 @@ export default function PrepaymentPlanner({
       {/* Impact Indicators */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Interest Saved */}
-        <div className="flex items-center gap-3.5 rounded-lg p-4.5 shadow-sm">
-          <div className="flex items-center justify-center rounded-lg bg-[var(--interest-color)] p-2.5 text-white">
+        <div className="flex items-center gap-3.5 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4.5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="flex items-center justify-center rounded-xl bg-[var(--interest-color)]/10 p-2.5 text-[var(--interest-color)]">
             <GiftOutlined style={{fontSize: 18}} />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+            <span className="font-medium text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">
               Interest Saved
             </span>
-            <span className="font-extrabold font-mono text-[var(--interest-color)] text-xl">
+            <span className="font-medium font-mono text-[var(--interest-color)] text-xl">
               {formatCurrency(interestSaved)}
             </span>
           </div>
         </div>
 
         {/* Tenure Reduced */}
-        <div className="flex items-center gap-3.5 rounded-lg p-4.5 shadow-sm">
-          <div className="flex items-center justify-center rounded-lg bg-indigo-500 p-2.5 text-white">
+        <div className="flex items-center gap-3.5 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4.5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="flex items-center justify-center rounded-xl bg-indigo-500/10 p-2.5 text-indigo-500">
             <HourglassOutlined style={{fontSize: 18}} />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+            <span className="font-medium text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">
               Tenure Reduced
             </span>
-            <span className="font-extrabold font-mono text-indigo-500 text-xl">
+            <span className="font-medium font-mono text-indigo-500 text-xl">
               {tenureReduced} mo
             </span>
           </div>
@@ -132,8 +132,8 @@ export default function PrepaymentPlanner({
       <div className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Prepayment Form */}
         <Card className="flex h-full min-h-[260px] flex-col lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-1.5 border-[var(--card-border)] border-b pb-2 font-bold text-[var(--text-primary)] text-xs normal-case">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-1.5 font-semibold text-[var(--text-primary)] text-sm">
               <PlusOutlined style={{color: 'var(--primary)'}} />
               <span>Add Prepayment</span>
             </CardTitle>
@@ -217,8 +217,8 @@ export default function PrepaymentPlanner({
 
         {/* Prepayments List */}
         <Card className="flex h-full min-h-[260px] flex-col lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="border-[var(--card-border)] border-b pb-2 font-bold text-[var(--text-primary)] text-xs normal-case">
+          <CardHeader className="pb-2">
+            <CardTitle className="font-semibold text-[var(--text-primary)] text-sm">
               Scheduled Prepayments
             </CardTitle>
           </CardHeader>

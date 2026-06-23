@@ -1,7 +1,13 @@
 'use client';
 
-import {Badge, Button, Tooltip} from 'antd';
-import {Calculator, Moon, Redo2, Sun, Undo2, Users} from 'lucide-react';
+import {
+  MoonOutlined,
+  RedoOutlined,
+  SunOutlined,
+  UndoOutlined,
+} from '@ant-design/icons';
+import {Button, Tooltip} from 'antd';
+import {Users} from 'lucide-react';
 
 interface HeaderProps {
   tabId: string;
@@ -25,55 +31,38 @@ export default function Header({
   canRedo,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 w-full border-[var(--card-border)] border-b bg-[var(--card-bg)]/85 backdrop-blur-md transition-all duration-300">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Workspace Brand / Logo */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[var(--primary)] text-white shadow-[0_3px_8px_rgba(37,99,235,0.15)] sm:h-9 sm:w-9">
-            <Calculator className="h-4 w-4 sm:h-5 sm:w-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h1 className="whitespace-nowrap font-black text-[var(--primary)] text-xs tracking-tight sm:text-sm">
-                EMI Calculator
-              </h1>
-            </div>
-            <p className="hidden font-medium text-[10px] text-[var(--text-muted)] sm:block">
-              Collaborative Shared Workspace
-            </p>
-          </div>
-        </div>
-
-        {/* Toolbar & Live Collaboration Status */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Active Presence Status */}
-          <div className="flex items-center gap-1.5 rounded-full border border-[var(--card-border)] bg-[var(--input-bg)]/40 px-2 py-1 sm:gap-3 sm:px-3 sm:py-1.5">
-            {/* Live Indicator */}
-
-            <div className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5 text-[var(--text-secondary)]" />
-              <Badge
-                count={activeTabsCount}
-                style={{
-                  backgroundColor: 'var(--primary)',
-                  fontSize: '9px',
-                  height: '16px',
-                  minWidth: '16px',
-                  lineHeight: '16px',
-                  borderRadius: '8px',
-                }}
-              >
-                <span className="hidden pr-2 font-semibold text-[var(--text-primary)] text-xs sm:inline">
-                  {activeTabsCount === 1 ? 'Tab' : 'Tabs'}
+    <header className="fixed top-0 right-0 left-0 z-50 py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav className="flex items-center justify-between gap-2 rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)]/95 px-5 py-2.5 shadow-sm backdrop-blur-md transition-all duration-300">
+          {/* Left: Brand Identity */}
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              className="flex items-center gap-2 font-bold text-sm tracking-tight decoration-none"
+            >
+              <span className="hidden font-semibold text-[var(--text-primary)] leading-none sm:block">
+                CALCI
+                <span className="mt-0.5 block font-normal text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+                  EMI Calculator
                 </span>
-              </Badge>
-            </div>
+              </span>
+            </a>
           </div>
 
-          <div className="h-5 w-px bg-[var(--card-border)]"></div>
+          {/* Right: Collaboration Status, Undo/Redo & Theme Toggle */}
+          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--card-border)]/50 bg-[var(--input-bg)]/40 px-3 py-1">
+            {/* Presence Count */}
+            <Tooltip title={`${activeTabsCount} active tabs sharing workspace`}>
+              <div className="flex items-center gap-1.5 px-1 font-semibold text-[var(--text-secondary)] text-xs">
+                <Users className="h-3.5 w-3.5" />
+                <span className="text-[11px]">{activeTabsCount}</span>
+              </div>
+            </Tooltip>
 
-          {/* Undo/Redo & Theme Controls */}
-          <div className="flex items-center gap-1 sm:gap-1.5">
+            {/* Divider */}
+            <div className="h-4 w-px bg-[var(--card-border)]" />
+
+            {/* Undo */}
             <Tooltip title="Undo (Ctrl+Z)" mouseEnterDelay={0.5}>
               <Button
                 type="text"
@@ -81,10 +70,12 @@ export default function Header({
                 disabled={!canUndo}
                 onClick={onUndo}
                 className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:hover:bg-transparent"
-                icon={<Undo2 className="h-4 w-4" />}
+                icon={<UndoOutlined style={{fontSize: '12px'}} />}
+                size="small"
               />
             </Tooltip>
 
+            {/* Redo */}
             <Tooltip title="Redo (Ctrl+Y)" mouseEnterDelay={0.5}>
               <Button
                 type="text"
@@ -92,36 +83,47 @@ export default function Header({
                 disabled={!canRedo}
                 onClick={onRedo}
                 className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:hover:bg-transparent"
-                icon={<Redo2 className="h-4 w-4" />}
+                icon={<RedoOutlined style={{fontSize: '12px'}} />}
+                size="small"
               />
             </Tooltip>
 
-            <div className="mx-1 h-4 w-px bg-[var(--card-border)]"></div>
+            {/* Divider */}
+            <div className="h-4 w-px bg-[var(--card-border)]" />
 
+            {/* Theme Toggle */}
             <Tooltip
               title={
                 theme === 'dark'
                   ? 'Switch to Light Mode'
                   : 'Switch to Dark Mode'
               }
-              mouseEnterDelay={0.5}
+              placement="bottom"
             >
-              <Button
-                type="text"
-                shape="circle"
+              <button
+                type="button"
                 onClick={onThemeToggle}
-                className="flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--input-bg)]"
-                icon={
-                  theme === 'dark' ? (
-                    <Sun className="h-4 w-4 text-amber-500" />
-                  ) : (
-                    <Moon className="h-4 w-4 text-indigo-500" />
-                  )
-                }
-              />
+                className="flex cursor-pointer select-none items-center gap-1.5 rounded-lg border border-[var(--card-border)] bg-[var(--input-bg)]/50 bg-transparent px-2.5 py-1.5 font-medium text-[var(--text-primary)] text-xs transition-all duration-200 hover:border-[var(--card-border)] hover:bg-[var(--input-bg)]"
+              >
+                {theme === 'dark' ? (
+                  <>
+                    <SunOutlined className="text-amber-500" />
+                    <span className="hidden font-semibold text-[var(--text-primary)] sm:inline">
+                      Light
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <MoonOutlined className="text-indigo-500" />
+                    <span className="hidden font-semibold text-[var(--text-primary)] sm:inline">
+                      Dark
+                    </span>
+                  </>
+                )}
+              </button>
             </Tooltip>
           </div>
-        </div>
+        </nav>
       </div>
     </header>
   );
