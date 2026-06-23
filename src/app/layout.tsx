@@ -28,8 +28,39 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <head></head>
+      <head>
+        <script id="theme-initializer">
+          {`
+            (function() {
+              try {
+                var params = new URLSearchParams(window.location.search);
+                var id = params.get('id');
+                var theme = 'light';
+                if (id) {
+                  var item = localStorage.getItem('emi_config_' + id);
+                  if (item) {
+                    var parsed = JSON.parse(item);
+                    if (parsed && parsed.theme) {
+                      theme = parsed.theme;
+                    }
+                  }
+                } else {
+                  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    theme = 'dark';
+                  }
+                }
+                if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            })();
+          `}
+        </script>
+      </head>
       <body className="flex min-h-full flex-col">
         <AntdRegistry>{children}</AntdRegistry>
       </body>

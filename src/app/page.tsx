@@ -353,66 +353,90 @@ function CalculatorWorkspace() {
 
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
+
+    let activeTheme: 'light' | 'dark' = 'light';
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id) {
+        try {
+          const item = localStorage.getItem(`emi_config_${id}`);
+          if (item) {
+            const parsed = JSON.parse(item);
+            if (parsed && parsed.theme) {
+              activeTheme = parsed.theme;
+            }
+          }
+        } catch (e) {}
+      } else {
+        if (
+          window.matchMedia &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        ) {
+          activeTheme = 'dark';
+        }
+      }
+    }
+
+    setTheme(activeTheme);
+
+    if (typeof document !== 'undefined') {
+      if (activeTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 450);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (!isMounted) {
-    return (
-      <>
-        {/* Light Loader */}
-        <div className="block dark:hidden">
-          <ConfigProvider
-            theme={{
-              algorithm: antdTheme.defaultAlgorithm,
-              token: {
-                colorPrimary: '#2563eb',
-                borderRadius: 12,
-                fontFamily: "'Inter', system-ui, sans-serif",
-              },
-            }}
-          >
-            <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-8 text-slate-900">
-              <div className="flex w-full max-w-xl flex-col items-center gap-4">
-                <Spin
-                  size="large"
-                  description="Synchronizing Workspace Session..."
-                />
-                <div className="mt-6 w-full opacity-30">
-                  <Skeleton active paragraph={{rows: 6}} />
-                </div>
-              </div>
-            </div>
-          </ConfigProvider>
-        </div>
+    return null;
+  }
 
-        {/* Dark Loader */}
-        <div className="hidden dark:block">
-          <ConfigProvider
-            theme={{
-              algorithm: antdTheme.darkAlgorithm,
-              token: {
-                colorPrimary: '#3b82f6',
-                borderRadius: 12,
-                fontFamily: "'Inter', system-ui, sans-serif",
-              },
-            }}
-          >
-            <div className="flex min-h-screen items-center justify-center bg-[#000000] p-8 text-slate-100">
-              <div className="flex w-full max-w-xl flex-col items-center gap-4">
-                <Spin
-                  size="large"
-                  description="Synchronizing Workspace Session..."
-                />
-                <div className="mt-6 w-full opacity-30">
-                  <Skeleton active paragraph={{rows: 6}} />
-                </div>
-              </div>
+  if (isLoading) {
+    const isDark = theme === 'dark';
+    return (
+      <ConfigProvider
+        theme={{
+          algorithm: isDark
+            ? antdTheme.darkAlgorithm
+            : antdTheme.defaultAlgorithm,
+          token: {
+            colorPrimary: isDark ? '#3b82f6' : '#2563eb',
+            borderRadius: 12,
+            fontFamily: "'Inter', system-ui, sans-serif",
+          },
+        }}
+      >
+        <div
+          className={`flex min-h-screen items-center justify-center p-8 transition-colors duration-150 ${
+            isDark
+              ? 'bg-[#000000] text-slate-100'
+              : 'bg-[#f8fafc] text-slate-900'
+          }`}
+        >
+          <div className="flex w-full max-w-xl flex-col items-center gap-4">
+            <Spin
+              size="large"
+              description="Synchronizing Workspace Session..."
+            />
+            <div className="mt-6 w-full opacity-30">
+              <Skeleton active paragraph={{rows: 6}} />
             </div>
-          </ConfigProvider>
+          </div>
         </div>
-      </>
+      </ConfigProvider>
     );
   }
 
