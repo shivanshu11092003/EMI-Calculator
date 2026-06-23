@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "biome lint .",
     "format": "biome format .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "node scripts/wrap-wrangler.js",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
